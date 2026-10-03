@@ -2,64 +2,87 @@
 _Overwritten every turn. If you're reading this at session start, this is the state you're resuming from._
 
 ## Current Task
-Building the full Mend monorepo from `Mend_Technical_Plan.pdf` while Ahmed
-sleeps: repo scaffold, FastAPI backend, React PWA, KB pipeline skeleton,
-playbooks, Docker Compose, CI. Testing everything in Docker before any
-push. Working alone in the background, no deploys, no merges.
+Built out the full Mend monorepo from `Mend_Technical_Plan.pdf` overnight
+while Ahmed slept: backend, frontend, the full playbook breadth list, and
+a KB pipeline skeleton. Everything is Docker-tested and committed. Next:
+push, open a PR, and merge it (personal repo, see decisions.md D-007).
 
 ## Just Done
-- Repo scaffold created: `apps/web`, `services/api`, `pipelines/kb`,
-  `playbooks/{electrical,ac,car}`, `evals`, `infra`, `scripts`,
-  `.github/workflows`.
-- `playbooks/schema.json` (JSON Schema for every playbook) and
-  `playbooks/gates.json` (shared bilingual safety-gate catalogue) written
-  and pushed.
-- `CLAUDE.md`, `AGENTS.md`, `decisions.md` written (this file next).
-- Git identity fixed to the real GitHub account `ahmedembeddedxx`
-  (previous commit had been authored as the literal string "Ahmed";
-  amended + force-pushed with `--force-with-lease`, safe since it was the
-  only commit on a fresh branch).
-- Confirmed Docker daemon works in this container (`dockerd` started
-  manually) and `mirror.gcr.io/library/python:3.12-slim` and
-  `mirror.gcr.io/library/node:22-slim` pull fine (see D-004 — Docker Hub
-  direct pulls are 429 rate-limited here).
+- **Backend** (`services/api`): all 7 endpoint groups implemented
+  (session/detect/segment/kb/devices/events/playbooks/gates), auth
+  (Firebase + gated dev-mode bypass), per-user rate limiting, Firestore
+  stores, centralized model config. 49 pytest tests, green locally and in
+  Docker against the real Firestore emulator.
+- **Frontend** (`apps/web`): Home/Live/Done screens, Gemini Live session
+  orchestration (camera/mic/WebSocket -- not yet exercised against a real
+  key, see "Open Questions"), canvas overlay, the tool-call dispatcher
+  (fully unit tested), Zustand stores. 29 Vitest tests green; production
+  build verified (including the AudioWorklet chunk, see decisions.md
+  D-009); typecheck and oxlint clean.
+- **Playbooks**: all 26 from the plan's breadth table (8 electrical, 8
+  AC, 10 car), schema-validated. None human-safety-reviewed yet
+  (`review.safety_reviewed: false` on every one, honestly) -- that needs
+  real hardware per the plan's own gate.
+- **KB pipeline** (`pipelines/kb`): extract/structure/clean/embed are
+  real and tested (32 pytest tests); crawl is written but not installed/
+  exercised (no vetted source list yet, see decisions.md D-010).
+- **Infra**: `infra/docker-compose.yml` runs the whole stack plus three
+  isolated test profiles (api-test, web-test, kb-pipeline-test), all
+  verified green via `docker compose run --rm <service>` individually
+  and the firestore-emulator image rebuilt `--no-cache` as a final
+  from-scratch sanity check.
+- **CI**: `.github/workflows/ci.yml` mirrors the Docker Compose test
+  profile exactly, three parallel jobs.
+- **Security self-review**: no leaked secrets (grepped the whole repo),
+  no API keys in frontend code, every endpoint Pydantic-validated,
+  rate-limited where the plan calls for it, Firestore rules scope every
+  collection correctly, no raw frame/audio logging anywhere. Found and
+  fixed one real issue: four routers were echoing internal exception text
+  into 503 responses (mild info-disclosure) -- now logged server-side,
+  generic message to the client.
+- Em-dash sweep: cleared every em dash from committed docs (AGENTS.md
+  rule 9 applies repo-wide, caught a slip in my own early docs).
+- 15 commits made, split by type (feat/test/chore/docs/fix), each with
+  the `Ibtehaj778` co-author trailer, no Claude attribution anywhere
+  (decisions.md D-003), git identity on real GitHub account
+  `ahmedembeddedxx`.
 
 ## Next Step
-Commit the docs (`docs:` type, this file + CLAUDE.md + AGENTS.md +
-decisions.md) with the Ibtehaj778 co-author trailer, push, then start on
-the FastAPI backend skeleton (`services/api`): config.py with centralized
-model IDs/prices (D-005), Pydantic models, `/session` ephemeral-token
-endpoint, `/detect`, `/segment`, `/kb/search`, `/devices`, `/events`
-routers, with pytest tests and mocked Gemini/Replicate clients (no real
-API keys available yet). Then the React PWA scaffold, then the KB pipeline
-skeleton, then playbooks for the hackathon breadth list, then Docker
-Compose + CI, then a full local Docker test run before any further push.
+1. Push `claude/dazzling-mendel-wzr1ar` (not yet pushed since the last
+   docs commit -- everything above is committed locally).
+2. Open a PR with the files-changed table + why paragraph already
+   drafted (see this session's work).
+3. Merge it -- this repo is personal, so per decisions.md D-007 that
+   doesn't need to wait for an explicit per-PR go-ahead. (Never do this
+   on an organization repo without explicit sign-off.)
+4. Keep iterating on remaining scope if there's time: real browser
+   testing of the Live session, a real crawled KB source, human safety
+   review of playbooks, optical-flow tracking (`apps/web/src/features/
+   tracking/` is still an empty stub).
 
 ## Open Questions / Blockers (for Ahmed, when awake)
-- **API keys needed before live Gemini/Replicate calls can be tested for
-  real:** a Gemini API key (AI Studio, free tier is fine for dev) and,
-  later, a Replicate API token for the SAM segmentation fallback. Until
-  then, all Gemini/Replicate calls in tests are mocked and the real
-  client code is written against the documented API shapes but unverified
-  against live responses.
-- **Firebase/GCP project**: no GCP project ID or Firebase config supplied
-  yet, so Firestore/Cloud Storage/Secret Manager integration is being
-  built against the local Firestore emulator only; nothing will be
-  deployed per your instruction.
-- **Hackathon date** is still open per the plan itself ("Open questions"
-  page 21) — doesn't block build work, only the final timeline/demo-day
-  polish phase.
-- **Which fan/AC/car models the team can test on** before the event (plan's
-  own open question) — doesn't block playbook authoring, since playbooks
-  are written generically per the breadth table and will need real-hardware
-  validation later per the plan's "tested on real hardware" gate.
-- Everything else in the plan is being built as specified; nothing else is
-  blocking.
+- **Gemini API key and Replicate API token**: still not configured.
+  Everything that needs one fails closed with a clear 503 (verified: hit
+  `/session` with no key, got a 503, not a crash or a silent fake
+  response). The Live session's camera/mic/WebSocket wiring
+  (`apps/web/src/features/live/`) is written against the documented SDK
+  shapes but genuinely unverified against a live session -- needs a real
+  key and a real phone before the first demo.
+- **Firebase/GCP project**: still none. Dev-mode auth bypass covers local
+  testing; nothing deployed anywhere, as instructed.
+- **A real, licence-checked KB source list**: `pipelines/kb/sources/` only
+  has templates. Needs a human to check each real site's robots.txt/
+  terms before crawling it for real (see `sources/README.md`).
+- **Real hardware testing of playbooks**: all 26 are self-authored from
+  the plan and general repair knowledge, not field-tested. The plan's own
+  gate ("each playbook tested on real fan, AC and car") still needs doing
+  before any of them should be trusted on a real repair.
+- Hackathon date, which fan/AC/car the team can test on, and the judges'
+  panel focus are still open per the plan's own "Open questions" section
+  -- none of these block further build work.
 
 ## Files Touched This Turn
-- `playbooks/schema.json` — new, playbook JSON Schema
-- `playbooks/gates.json` — new, safety gate catalogue
-- `CLAUDE.md` — new, architecture/file map
-- `AGENTS.md` — new, agent rules
-- `decisions.md` — new, D-001 through D-005
-- `handover.md` — new (this file)
+148 files across `services/api/`, `apps/web/`, `playbooks/`,
+`pipelines/kb/`, `infra/`, `.github/workflows/`, and the four standing
+docs. See `git log --oneline` on this branch for the full, type-split
+commit history (15 commits, each self-describing).
