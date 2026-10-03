@@ -1,0 +1,56 @@
+{
+  "id": "car-no-start-diagnosis",
+  "category": "car",
+  "title": "No-start diagnosis (battery, starter, fuel, ignition)",
+  "title_ur": "اسٹارٹ نہ ہونے کی تشخیص (بیٹری، اسٹارٹر، فیول، اگنیشن)",
+  "summary": "Work through the common reasons a car won't start.",
+  "summary_ur": "عام وجوہات معلوم کریں جن کی بنا پر گاڑی اسٹارٹ نہیں ہو رہی۔",
+  "risk": "medium",
+  "tools": ["torch"],
+  "tools_ur": ["ٹارچ"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Turn the key or press start. Tell me exactly what happens: nothing at all, a clicking sound, slow cranking, or cranking but not catching.",
+      "say_ur": "چابی گھمائیں یا سٹارٹ دبائیں۔ مجھے بتائیں بالکل کیا ہوتا ہے: کچھ نہیں، کلک کی آواز، سست کرینکنگ، یا کرینکنگ ہو رہی ہے مگر چلتی نہیں۔",
+      "gate": "ignition_off_key_out",
+      "highlight": ["dashboard"]
+    },
+    {
+      "id": "s2",
+      "say": "Nothing at all, or dashboard lights are dim or off: this points to the battery. Check the terminals for corrosion or a loose connection.",
+      "say_ur": "بالکل کچھ نہیں، یا ڈیش بورڈ کی لائٹس مدھم یا بند: یہ بیٹری کی طرف اشارہ کرتا ہے۔ ٹرمینلز پر زنگ یا ڈھیلا کنکشن چیک کریں۔",
+      "highlight": ["battery terminals"]
+    },
+    {
+      "id": "s3",
+      "say": "A single loud click, lights are fine: this often points to the starter motor, which usually needs a technician.",
+      "say_ur": "ایک زور دار کلک، لائٹس ٹھیک ہیں: یہ اکثر اسٹارٹر موٹر کی طرف اشارہ کرتا ہے، جسے عام طور پر ٹیکنیشن کی ضرورت ہوتی ہے۔",
+      "highlight": []
+    },
+    {
+      "id": "s4",
+      "say": "Cranks normally but doesn't catch: check the fuel gauge, and listen for the fuel pump priming (a brief hum) when you first turn the key to 'on'.",
+      "say_ur": "عام طور پر کرینک کرتی ہے مگر چلتی نہیں: فیول گیج چیک کریں، اور چابی پہلی بار 'آن' کرنے پر فیول پمپ کی مختصر گنگناہٹ سنیں۔",
+      "highlight": ["fuel gauge"]
+    },
+    {
+      "id": "s5",
+      "say": "If none of these point to an obvious cause, it may be an ignition or electronic fault that needs diagnostic tools a technician has.",
+      "say_ur": "اگر ان میں سے کوئی واضح وجہ نہ بتائے، تو یہ اگنیشن یا الیکٹرانک خرابی ہو سکتی ہے جس کے لیے ٹیکنیشن کے تشخیصی آلات درکار ہوں گے۔",
+      "highlight": []
+    }
+  ],
+  "stop_if": [
+    "you smell fuel strongly, which could mean a fuel leak",
+    "smoke comes from the engine bay or dashboard",
+    "repeated cranking isn't starting the car -- stop to avoid draining or damaging the starter and battery"
+  ],
+  "stop_if_ur": [
+    "فیول کی تیز بو آئے، جو فیول لیک کی علامت ہو سکتی ہے",
+    "انجن بے یا ڈیش بورڈ سے دھواں نکلے",
+    "بار بار کرینکنگ سے گاڑی اسٹارٹ نہ ہو -- اسٹارٹر اور بیٹری کو نقصان سے بچانے کے لیے رک جائیں"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

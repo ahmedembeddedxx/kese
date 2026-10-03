@@ -1,0 +1,51 @@
+{
+  "id": "car-check-oil-level",
+  "category": "car",
+  "title": "Check engine oil level",
+  "title_ur": "انجن آئل کی سطح چیک کریں",
+  "summary": "Check whether the engine has enough oil using the dipstick.",
+  "summary_ur": "ڈپ سٹک کے ذریعے چیک کریں کہ انجن میں کافی آئل موجود ہے یا نہیں۔",
+  "risk": "low",
+  "tools": ["clean rag or paper towel"],
+  "tools_ur": ["صاف کپڑا یا پیپر ٹاول"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Park on flat ground, turn the engine off, and let it cool for a few minutes.",
+      "say_ur": "ہموار جگہ پر گاڑی کھڑی کریں، انجن بند کریں، اور چند منٹ ٹھنڈا ہونے دیں۔",
+      "gate": "engine_off_cool",
+      "highlight": ["engine bay"]
+    },
+    {
+      "id": "s2",
+      "say": "Open the bonnet and find the dipstick -- it usually has a brightly coloured handle, often yellow or orange.",
+      "say_ur": "بونٹ کھولیں اور ڈپ سٹک تلاش کریں -- اس کا ہینڈل عام طور پر چمکدار رنگ کا ہوتا ہے، اکثر پیلا یا نارنجی۔",
+      "highlight": ["dipstick"]
+    },
+    {
+      "id": "s3",
+      "say": "Pull it out, wipe it clean with the rag, push it all the way back in, then pull it out again to read the level.",
+      "say_ur": "اسے نکالیں، کپڑے سے صاف کریں، مکمل واپس اندر دھکیلیں، پھر دوبارہ نکال کر سطح پڑھیں۔",
+      "highlight": ["dipstick"],
+      "read_text": true
+    },
+    {
+      "id": "s4",
+      "say": "The oil should sit between the two marks near the bottom of the dipstick. If it's below the lower mark, top up with the oil grade your car's manual specifies.",
+      "say_ur": "آئل ڈپ سٹک کے نچلے حصے پر موجود دو نشانوں کے درمیان ہونا چاہیے۔ اگر نچلے نشان سے کم ہو تو گاڑی کی مینوئل میں بتائے گئے گریڈ کا آئل ڈالیں۔",
+      "highlight": ["dipstick markings"]
+    }
+  ],
+  "stop_if": [
+    "the oil looks milky or has a burnt smell",
+    "there is visible oil leaking under the car",
+    "the engine was running very recently and parts are still hot"
+  ],
+  "stop_if_ur": [
+    "آئل دودھیا نظر آئے یا جلنے کی بو ہو",
+    "گاڑی کے نیچے آئل رِستا نظر آئے",
+    "انجن ابھی حال ہی میں چلا ہو اور پرزے اب بھی گرم ہوں"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

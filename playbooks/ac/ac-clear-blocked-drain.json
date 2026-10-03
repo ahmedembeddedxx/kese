@@ -1,0 +1,56 @@
+{
+  "id": "ac-clear-blocked-drain",
+  "category": "ac",
+  "title": "Clear a blocked drain",
+  "title_ur": "بند ڈرین صاف کریں",
+  "summary": "Clear a blocked condensate drain line that's causing the AC to leak water indoors.",
+  "summary_ur": "بند کنڈینسیٹ ڈرین لائن صاف کریں جو اے سی کو اندر پانی ٹپکانے کا باعث بن رہی ہو۔",
+  "risk": "low",
+  "tools": ["small pump or wet/dry vacuum", "warm water", "mild vinegar solution (optional)"],
+  "tools_ur": ["چھوٹا پمپ یا ویٹ/ڈرائی ویکیوم", "گرم پانی", "ہلکا سرکہ محلول (اختیاری)"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Switch the AC off at its remote and at the wall switch.",
+      "say_ur": "اے سی کو ریموٹ اور دیوار کے سوئچ سے بند کریں۔",
+      "gate": "ac_power_off",
+      "highlight": ["AC wall switch"]
+    },
+    {
+      "id": "s2",
+      "say": "Find the drain pipe outside, where water normally drips from the outdoor or indoor unit.",
+      "say_ur": "باہر ڈرین پائپ تلاش کریں، جہاں سے عام طور پر باہر یا اندرونی یونٹ سے پانی ٹپکتا ہے۔",
+      "highlight": ["drain pipe outlet"]
+    },
+    {
+      "id": "s3",
+      "say": "Check the outside end of the pipe for a visible clog -- dirt, leaves, or insect nests are common. Clear what you can reach by hand.",
+      "say_ur": "پائپ کے باہری سرے پر نظر آنے والی رکاوٹ چیک کریں -- مٹی، پتے یا کیڑوں کے گھونسلے عام ہوتے ہیں۔ جو ہاتھ سے پہنچے وہ صاف کریں۔",
+      "highlight": ["drain pipe outlet"]
+    },
+    {
+      "id": "s4",
+      "say": "If it's still blocked, use a small pump or wet/dry vacuum at the outside end to suck the blockage out, or gently flush warm water through from the indoor end.",
+      "say_ur": "اگر پھر بھی بند ہو تو باہری سرے پر چھوٹا پمپ یا ویٹ/ڈرائی ویکیوم استعمال کر کے رکاوٹ نکالیں، یا اندرونی سرے سے گرم پانی آہستہ سے بہائیں۔",
+      "highlight": ["drain pipe outlet"]
+    },
+    {
+      "id": "s5",
+      "say": "Switch the AC back on and check that water is now dripping steadily from the outside pipe, with no leak indoors.",
+      "say_ur": "اے سی دوبارہ آن کریں اور دیکھیں کہ باہری پائپ سے پانی مستقل ٹپک رہا ہے اور اندر کوئی رساؤ نہیں۔",
+      "highlight": ["drain pipe outlet"]
+    }
+  ],
+  "stop_if": [
+    "water is leaking from inside the ceiling or wall, not just the indoor unit tray",
+    "the blockage is deep inside the wall and not reachable from either end",
+    "you see mould, pests, or structural damage around the drain line"
+  ],
+  "stop_if_ur": [
+    "پانی چھت یا دیوار کے اندر سے رس رہا ہو، نہ کہ صرف اندرونی یونٹ کی ٹرے سے",
+    "رکاوٹ دیوار کے اندر گہرائی میں ہو اور کسی بھی سرے سے نہ پہنچے",
+    "ڈرین لائن کے ارد گرد پھپھوندی، کیڑے، یا ساختی نقصان نظر آئے"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

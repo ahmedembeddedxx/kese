@@ -1,0 +1,70 @@
+{
+  "id": "car-tyre-pressure-spare-change",
+  "category": "car",
+  "title": "Tyre pressure and spare tyre change",
+  "title_ur": "ٹائر پریشر اور اسپیئر ٹائر تبدیل کریں",
+  "summary": "Check and correct tyre pressure, or change a flat tyre for the spare.",
+  "summary_ur": "ٹائر پریشر چیک اور درست کریں، یا پنکچر ٹائر کو اسپیئر سے تبدیل کریں۔",
+  "risk": "medium",
+  "tools": ["tyre pressure gauge", "air pump (for pressure check)", "jack", "wheel wrench", "spare tyre (for a flat)"],
+  "tools_ur": ["ٹائر پریشر گیج", "ایئر پمپ (پریشر چیک کے لیے)", "جیک", "وہیل رنچ", "اسپیئر ٹائر (پنکچر کے لیے)"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Park on flat, firm ground, apply the handbrake, and turn the engine off.",
+      "say_ur": "ہموار اور سخت زمین پر گاڑی کھڑی کریں، ہینڈ بریک لگائیں، اور انجن بند کریں۔",
+      "gate": "handbrake_on",
+      "highlight": ["handbrake"]
+    },
+    {
+      "id": "s2",
+      "say": "For a pressure check: press the gauge onto each valve and compare the reading to the number on the sticker inside the driver's door, not the number on the tyre's sidewall.",
+      "say_ur": "پریشر چیک کے لیے: گیج کو ہر والو پر لگائیں اور ریڈنگ کو ڈرائیور کے دروازے کے اندر لگے سٹیکر سے ملائیں، ٹائر کی سائیڈ وال پر موجود نمبر سے نہیں۔",
+      "highlight": ["tyre valve", "tyre pressure sticker"],
+      "read_text": true
+    },
+    {
+      "id": "s3",
+      "say": "For a flat tyre: block the wheels diagonally opposite the flat so the car can't roll, then loosen the wheel nuts slightly before jacking up the car.",
+      "say_ur": "پنکچر کے لیے: پنکچر کے مخالف سمت کے پہیوں کے آگے روک لگائیں تاکہ گاڑی لڑھک نہ سکے، پھر جیک لگانے سے پہلے وہیل نٹس تھوڑے ڈھیلے کریں۔",
+      "gate": "wheel_chocked",
+      "highlight": ["wheel chocks", "wheel nuts"]
+    },
+    {
+      "id": "s4",
+      "say": "Position the jack at the car's marked jacking point near the flat tyre, and raise it until the wheel is clear of the ground.",
+      "say_ur": "جیک کو گاڑی کے مقررہ جیکنگ پوائنٹ پر پنکچر والے ٹائر کے قریب رکھیں، اور اتنا اٹھائیں کہ پہیہ زمین سے اوپر ہو جائے۔",
+      "highlight": ["jacking point"]
+    },
+    {
+      "id": "s5",
+      "say": "Remove the wheel nuts fully, pull the flat tyre off, and fit the spare onto the wheel studs.",
+      "say_ur": "وہیل نٹس مکمل نکالیں، پنکچر ٹائر اتاریں، اور اسپیئر کو وہیل سٹڈز پر لگائیں۔",
+      "highlight": ["spare tyre"]
+    },
+    {
+      "id": "s6",
+      "say": "Tighten the nuts by hand in a star pattern, lower the car, then fully tighten them with the wrench in the same star pattern.",
+      "say_ur": "نٹس کو ستارے کے انداز میں ہاتھ سے کسیں، گاڑی نیچے کریں، پھر رنچ سے اسی انداز میں مکمل کسیں۔",
+      "highlight": ["wheel nuts"]
+    },
+    {
+      "id": "s7",
+      "say": "Drive carefully to a tyre shop soon -- most spares are temporary and not rated for high speed or long distance.",
+      "say_ur": "جلد احتیاط سے ٹائر کی دکان جائیں -- زیادہ تر اسپیئر عارضی ہوتے ہیں اور تیز رفتاری یا لمبے سفر کے لیے نہیں ہوتے۔",
+      "highlight": []
+    }
+  ],
+  "stop_if": [
+    "the ground is soft, sloped, or unstable for jacking",
+    "the jacking point is damaged or you're unsure where it is",
+    "the spare tyre is also flat or badly worn"
+  ],
+  "stop_if_ur": [
+    "زمین جیک لگانے کے لیے نرم، ڈھلوان، یا غیر مستحکم ہو",
+    "جیکنگ پوائنٹ خراب ہو یا آپ کو یقین نہ ہو وہ کہاں ہے",
+    "اسپیئر ٹائر بھی پنکچر ہو یا بری طرح گھسا ہوا ہو"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

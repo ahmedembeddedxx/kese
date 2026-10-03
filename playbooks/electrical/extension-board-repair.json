@@ -1,0 +1,56 @@
+{
+  "id": "extension-board-repair",
+  "category": "electrical",
+  "title": "Extension board repair",
+  "title_ur": "ایکسٹینشن بورڈ کی مرمت",
+  "summary": "Diagnose and fix an extension board (power strip) that has a dead socket, loose switch, or damaged cord.",
+  "summary_ur": "ایکسٹینشن بورڈ جس کا سوکٹ کام نہ کرے، سوئچ ڈھیلا ہو، یا تار خراب ہو، اسے چیک اور ٹھیک کریں۔",
+  "risk": "medium",
+  "tools": ["screwdriver", "tester", "replacement cord or socket if needed"],
+  "tools_ur": ["سکریو ڈرائیور", "ٹیسٹر", "ضرورت پڑنے پر نئی تار یا سوکٹ"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Unplug the extension board from the wall completely.",
+      "say_ur": "ایکسٹینشن بورڈ کو دیوار سے مکمل طور پر نکال دیں۔",
+      "gate": "power_off_confirmed",
+      "highlight": ["extension board plug"]
+    },
+    {
+      "id": "s2",
+      "say": "Check the cord along its whole length for cuts, cracks or exposed wire. If you find any, stop and replace the whole cord.",
+      "say_ur": "تار کی پوری لمبائی چیک کریں کہ کہیں کٹاؤ، دراڑ یا کھلی تار تو نہیں۔ اگر ملے تو رک جائیں اور پوری تار تبدیل کریں۔",
+      "highlight": ["power cord"]
+    },
+    {
+      "id": "s3",
+      "say": "Open the board's casing screws and look inside for loose or burnt wire connections.",
+      "say_ur": "بورڈ کے کیسنگ کے پیچ کھولیں اور اندر ڈھیلے یا جلے ہوئے کنکشن دیکھیں۔",
+      "highlight": ["extension board casing", "internal wiring"]
+    },
+    {
+      "id": "s4",
+      "say": "Tighten any loose screw terminals. If a socket or switch looks burnt or melted, replace that part rather than just tightening it.",
+      "say_ur": "ڈھیلے سکریو ٹرمینل کسیں۔ اگر کوئی سوکٹ یا سوئچ جلا یا پگھلا نظر آئے تو اسے صرف کسنے کی بجائے تبدیل کریں۔",
+      "highlight": ["screw terminals"]
+    },
+    {
+      "id": "s5",
+      "say": "Close the casing, plug the board back in, and test every socket with a known device.",
+      "say_ur": "کیسنگ بند کریں، بورڈ دوبارہ لگائیں، اور ہر سوکٹ کسی معلوم آلے سے ٹیسٹ کریں۔",
+      "highlight": ["extension board plug"]
+    }
+  ],
+  "stop_if": [
+    "burn marks, melted plastic or a burning smell anywhere on the board",
+    "the earth pin or earth wire is missing or broken",
+    "the board feels hot to the touch during normal use"
+  ],
+  "stop_if_ur": [
+    "بورڈ پر کہیں بھی جلنے کے نشان، پگھلا پلاسٹک یا جلنے کی بو",
+    "ارتھ پن یا ارتھ تار موجود نہ ہو یا ٹوٹی ہو",
+    "عام استعمال کے دوران بورڈ چھونے پر گرم محسوس ہو"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

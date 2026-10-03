@@ -1,0 +1,68 @@
+{
+  "id": "car-jump-start",
+  "category": "car",
+  "title": "Jump-start a car",
+  "title_ur": "گاڑی جمپ سٹارٹ کریں",
+  "summary": "Safely jump-start a car with a dead battery using jumper cables and a working car.",
+  "summary_ur": "جمپر کیبلز اور ایک چلتی گاڑی کی مدد سے مردہ بیٹری والی گاڑی محفوظ طریقے سے جمپ سٹارٹ کریں۔",
+  "risk": "medium",
+  "tools": ["jumper cables", "a second car with a working battery"],
+  "tools_ur": ["جمپر کیبلز", "چلتی بیٹری والی دوسری گاڑی"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Park both cars close but not touching, engines off, handbrakes on. Make sure the jumper cable clamps aren't touching each other or anything metal yet.",
+      "say_ur": "دونوں گاڑیاں قریب مگر چھوئے بغیر کھڑی کریں، انجن بند، ہینڈ بریک لگی ہوئی۔ یقینی بنائیں جمپر کیبل کے کلیمپ ابھی ایک دوسرے یا کسی دھات کو نہیں چھو رہے۔",
+      "gate": "jump_cars_ready",
+      "highlight": ["both cars", "jumper cable clamps"]
+    },
+    {
+      "id": "s2",
+      "say": "Connect one red clamp to the dead battery's positive (+) terminal.",
+      "say_ur": "ایک سرخ کلیمپ مردہ بیٹری کے پازیٹو (+) ٹرمینل پر لگائیں۔",
+      "highlight": ["dead battery positive terminal"]
+    },
+    {
+      "id": "s3",
+      "say": "Connect the other red clamp to the working battery's positive (+) terminal.",
+      "say_ur": "دوسرا سرخ کلیمپ چلتی بیٹری کے پازیٹو (+) ٹرمینل پر لگائیں۔",
+      "highlight": ["working battery positive terminal"]
+    },
+    {
+      "id": "s4",
+      "say": "Connect one black clamp to the working battery's negative (-) terminal.",
+      "say_ur": "ایک کالا کلیمپ چلتی بیٹری کے نیگیٹو (-) ٹرمینل پر لگائیں۔",
+      "highlight": ["working battery negative terminal"]
+    },
+    {
+      "id": "s5",
+      "say": "Connect the last black clamp to an unpainted metal part of the dead car's engine block, not the dead battery's negative terminal -- this reduces spark risk near the battery.",
+      "say_ur": "آخری کالا کلیمپ مردہ گاڑی کے انجن بلاک کے بغیر رنگ والے دھاتی حصے پر لگائیں، مردہ بیٹری کے نیگیٹو ٹرمینل پر نہیں -- اس سے بیٹری کے قریب چنگاری کا خطرہ کم ہوتا ہے۔",
+      "highlight": ["dead car engine block"]
+    },
+    {
+      "id": "s6",
+      "say": "Start the working car and let it run for a couple of minutes, then try starting the dead car.",
+      "say_ur": "چلتی گاڑی اسٹارٹ کریں اور چند منٹ چلنے دیں، پھر مردہ گاڑی اسٹارٹ کرنے کی کوشش کریں۔",
+      "highlight": ["working car"]
+    },
+    {
+      "id": "s7",
+      "say": "Once it starts, remove the clamps in exactly the reverse order you connected them: last black first, then the other black, then both reds.",
+      "say_ur": "اسٹارٹ ہونے کے بعد کلیمپ بالکل الٹے ترتیب میں نکالیں: آخری کالا پہلے، پھر دوسرا کالا، پھر دونوں سرخ۔",
+      "highlight": ["jumper cable clamps"]
+    }
+  ],
+  "stop_if": [
+    "the battery is cracked, bulging, or leaking",
+    "sparks occur at any connection point",
+    "either battery smells of rotten eggs or looks swollen"
+  ],
+  "stop_if_ur": [
+    "بیٹری ٹوٹی، پھولی، یا رِس رہی ہو",
+    "کسی بھی کنکشن پوائنٹ پر چنگاری نکلے",
+    "کوئی بھی بیٹری سڑے انڈوں کی بو دے یا پھولی نظر آئے"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

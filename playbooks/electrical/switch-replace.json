@@ -1,0 +1,64 @@
+{
+  "id": "switch-replace",
+  "category": "electrical",
+  "title": "Replace a switch",
+  "title_ur": "سوئچ تبدیل کریں",
+  "summary": "Replace a worn or broken wall switch for a light or fan.",
+  "summary_ur": "خراب یا پرانی دیوار کی سوئچ کو لائٹ یا پنکھے کے لیے تبدیل کریں۔",
+  "risk": "medium",
+  "tools": ["screwdriver", "tester", "new switch (same rating)"],
+  "tools_ur": ["سکریو ڈرائیور", "ٹیسٹر", "نیا سوئچ (وہی ریٹنگ)"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Switch off the breaker for this room at the main board.",
+      "say_ur": "مین بورڈ سے اس کمرے کا بریکر بند کریں۔",
+      "gate": "power_off_confirmed",
+      "highlight": ["MCB", "distribution board"]
+    },
+    {
+      "id": "s2",
+      "say": "Touch the tester to the switch terminals. It must show no power before you continue.",
+      "say_ur": "ٹیسٹر کو سوئچ کے ٹرمینلز پر لگائیں۔ آگے بڑھنے سے پہلے اس میں کرنٹ نہیں ہونا چاہیے۔",
+      "gate": "circuit_tested_dead",
+      "highlight": ["switch terminals"]
+    },
+    {
+      "id": "s3",
+      "say": "Unscrew the switch plate and gently pull the switch out of the box.",
+      "say_ur": "سوئچ کی پلیٹ کے پیچ کھولیں اور سوئچ کو آہستہ سے باکس سے نکالیں۔",
+      "highlight": ["switch plate", "switch screws"]
+    },
+    {
+      "id": "s4",
+      "say": "Note which wire is on which terminal, or take a photo before disconnecting them.",
+      "say_ur": "یہ نوٹ کریں کہ کون سی تار کس ٹرمینل پر ہے، یا تاریں کھولنے سے پہلے تصویر لے لیں۔",
+      "highlight": ["switch wires"],
+      "mark_wires": true
+    },
+    {
+      "id": "s5",
+      "say": "Connect the same wires to the matching terminals on the new switch and screw them in firmly.",
+      "say_ur": "وہی تاریں نئے سوئچ کے اسی ٹرمینل پر لگائیں اور پیچ مضبوطی سے کسیں۔",
+      "highlight": ["new switch terminals"]
+    },
+    {
+      "id": "s6",
+      "say": "Push the switch back into the box, screw the plate on, then restore the breaker and test it.",
+      "say_ur": "سوئچ کو واپس باکس میں لگائیں، پلیٹ کے پیچ کسیں، پھر بریکر آن کر کے ٹیسٹ کریں۔",
+      "highlight": ["switch plate"]
+    }
+  ],
+  "stop_if": [
+    "burn marks or melted plastic on the old switch or wiring",
+    "smell of burnt insulation",
+    "wires crumble or the insulation is cracked with bare copper showing"
+  ],
+  "stop_if_ur": [
+    "پرانے سوئچ یا تاروں پر جلنے کے نشان یا پگھلا ہوا پلاسٹک",
+    "جلی ہوئی انسولیشن کی بو",
+    "تاریں ٹوٹ پھوٹ رہی ہوں یا انسولیشن سے تانبا نظر آ رہا ہو"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

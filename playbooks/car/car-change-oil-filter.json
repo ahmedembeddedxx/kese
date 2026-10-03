@@ -1,0 +1,69 @@
+{
+  "id": "car-change-oil-filter",
+  "category": "car",
+  "title": "Change engine oil and filter",
+  "title_ur": "انجن آئل اور فلٹر تبدیل کریں",
+  "summary": "Drain the old engine oil, replace the filter, and refill with fresh oil.",
+  "summary_ur": "پرانا انجن آئل نکالیں، فلٹر تبدیل کریں، اور تازہ آئل بھریں۔",
+  "risk": "medium",
+  "tools": ["wrench for drain plug", "oil filter wrench", "drain pan", "new oil filter", "fresh engine oil (correct grade)", "jack and stands (if needed)"],
+  "tools_ur": ["ڈرین پلگ کے لیے رنچ", "آئل فلٹر رنچ", "ڈرین پین", "نیا آئل فلٹر", "تازہ انجن آئل (درست گریڈ)", "جیک اور سٹینڈز (اگر ضرورت ہو)"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Park on flat ground and turn the engine off. The oil should be slightly warm, not hot -- wait if you just drove.",
+      "say_ur": "ہموار جگہ پر گاڑی کھڑی کریں اور انجن بند کریں۔ آئل ہلکا گرم ہونا چاہیے، گرم نہیں -- اگر ابھی گاڑی چلائی ہے تو انتظار کریں۔",
+      "gate": "engine_off_cool",
+      "highlight": ["engine bay"]
+    },
+    {
+      "id": "s2",
+      "say": "Apply the handbrake and, if you need to go under the car, use a jack and stands -- never rely on a jack alone.",
+      "say_ur": "ہینڈ بریک لگائیں، اور اگر گاڑی کے نیچے جانا ہو تو جیک اور سٹینڈز استعمال کریں -- صرف جیک پر کبھی بھروسہ نہ کریں۔",
+      "gate": "handbrake_on",
+      "highlight": ["handbrake"]
+    },
+    {
+      "id": "s3",
+      "say": "Place the drain pan under the oil drain plug, loosen it with the wrench, and let all the old oil drain out fully.",
+      "say_ur": "ڈرین پلگ کے نیچے ڈرین پین رکھیں، رنچ سے اسے ڈھیلا کریں، اور تمام پرانا آئل مکمل نکلنے دیں۔",
+      "highlight": ["oil drain plug"]
+    },
+    {
+      "id": "s4",
+      "say": "Replace the drain plug and its washer, then remove the old oil filter and let any oil in it drain into the pan too.",
+      "say_ur": "ڈرین پلگ اور اس کی واشر دوبارہ لگائیں، پھر پرانا آئل فلٹر نکالیں اور اس میں موجود آئل بھی پین میں نکلنے دیں۔",
+      "highlight": ["oil filter"]
+    },
+    {
+      "id": "s5",
+      "say": "Smear a little fresh oil on the new filter's rubber seal, then screw it on by hand until snug -- don't overtighten.",
+      "say_ur": "نئے فلٹر کی ربڑ سیل پر تھوڑا تازہ آئل لگائیں، پھر اسے ہاتھ سے کس کر لگائیں -- زیادہ نہ کسیں۔",
+      "highlight": ["new oil filter"]
+    },
+    {
+      "id": "s6",
+      "say": "Pour in the correct amount and grade of fresh oil through the filler cap, then check the level with the dipstick and top up if needed.",
+      "say_ur": "فلر کیپ کے ذریعے درست مقدار اور گریڈ کا تازہ آئل ڈالیں، پھر ڈپ سٹک سے سطح چیک کریں اور ضرورت ہو تو مزید ڈالیں۔",
+      "highlight": ["oil filler cap", "dipstick"]
+    },
+    {
+      "id": "s7",
+      "say": "Start the engine, check under the car for leaks at the drain plug and filter, then switch off and recheck the oil level once settled.",
+      "say_ur": "انجن اسٹارٹ کریں، ڈرین پلگ اور فلٹر پر گاڑی کے نیچے رساؤ چیک کریں، پھر بند کر کے آئل ٹھہرنے کے بعد سطح دوبارہ چیک کریں۔",
+      "highlight": ["oil drain plug", "oil filter"]
+    }
+  ],
+  "stop_if": [
+    "the car is only supported by a jack with no stands and you need to go underneath",
+    "the drain plug is stripped or won't seal properly",
+    "oil leaks heavily after restarting the engine"
+  ],
+  "stop_if_ur": [
+    "گاڑی صرف جیک پر کھڑی ہو، سٹینڈز کے بغیر، اور نیچے جانے کی ضرورت ہو",
+    "ڈرین پلگ گھس چکا ہو یا ٹھیک سے بند نہ ہو",
+    "انجن دوبارہ اسٹارٹ کرنے پر بہت زیادہ آئل رِسے"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

@@ -1,0 +1,57 @@
+{
+  "id": "car-check-brake-washer-fluid",
+  "category": "car",
+  "title": "Check brake and washer fluid",
+  "title_ur": "بریک اور واشر فلوئڈ چیک کریں",
+  "summary": "Check the brake fluid and windshield washer fluid reservoirs and top them up.",
+  "summary_ur": "بریک فلوئڈ اور ونڈ شیلڈ واشر فلوئڈ کے ریزروائر چیک کریں اور بھریں۔",
+  "risk": "medium",
+  "tools": ["correct brake fluid (DOT type from manual)", "washer fluid or clean water", "clean rag"],
+  "tools_ur": ["درست بریک فلوئڈ (مینوئل میں بتائی DOT قسم)", "واشر فلوئڈ یا صاف پانی", "صاف کپڑا"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Park on flat ground and turn the engine off.",
+      "say_ur": "ہموار جگہ پر گاڑی کھڑی کریں اور انجن بند کریں۔",
+      "gate": "engine_off_cool",
+      "highlight": ["engine bay"]
+    },
+    {
+      "id": "s2",
+      "say": "Find the brake fluid reservoir -- usually near the back of the engine bay on the driver's side, with min/max marks.",
+      "say_ur": "بریک فلوئڈ ریزروائر تلاش کریں -- عام طور پر انجن بے کے پچھلے حصے میں ڈرائیور کی طرف، min/max نشانات کے ساتھ۔",
+      "highlight": ["brake fluid reservoir"]
+    },
+    {
+      "id": "s3",
+      "say": "Check the level is between the marks without opening the cap, since brake fluid is sensitive to moisture and dirt.",
+      "say_ur": "کیپ کھولے بغیر چیک کریں سطح نشانات کے درمیان ہے، کیونکہ بریک فلوئڈ نمی اور گندگی کے لیے حساس ہوتا ہے۔",
+      "highlight": ["brake fluid reservoir markings"],
+      "read_text": true
+    },
+    {
+      "id": "s4",
+      "say": "If it's low, wipe the cap clean before opening, top up to the max mark with the exact DOT type your manual specifies, and close it firmly right away.",
+      "say_ur": "اگر کم ہو تو کھولنے سے پہلے کیپ صاف کریں، مینوئل میں بتائی گئی صحیح DOT قسم سے max نشان تک بھریں، اور فوراً مضبوطی سے بند کریں۔",
+      "highlight": ["brake fluid reservoir cap"]
+    },
+    {
+      "id": "s5",
+      "say": "Find the washer fluid reservoir, marked with a windshield-and-spray symbol, and top it up with washer fluid or clean water.",
+      "say_ur": "واشر فلوئڈ ریزروائر تلاش کریں، جس پر ونڈ شیلڈ اور سپرے کی علامت ہو، اور اسے واشر فلوئڈ یا صاف پانی سے بھریں۔",
+      "highlight": ["washer fluid reservoir"]
+    }
+  ],
+  "stop_if": [
+    "the brake fluid level has dropped noticeably since last checked, which can mean a leak",
+    "the brake fluid looks dark brown or has debris in it",
+    "the brake pedal feels soft or sinks to the floor"
+  ],
+  "stop_if_ur": [
+    "بریک فلوئڈ کی سطح پچھلی بار سے واضح طور پر کم ہو گئی ہو، جو رساؤ کی علامت ہو سکتی ہے",
+    "بریک فلوئڈ گہرا بھورا نظر آئے یا اس میں ذرات ہوں",
+    "بریک پیڈل نرم محسوس ہو یا نیچے تک دب جائے"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

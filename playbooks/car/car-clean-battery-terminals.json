@@ -1,0 +1,56 @@
+{
+  "id": "car-clean-battery-terminals",
+  "category": "car",
+  "title": "Clean battery terminals",
+  "title_ur": "بیٹری ٹرمینلز صاف کریں",
+  "summary": "Clean corroded battery terminals that are causing starting or electrical problems.",
+  "summary_ur": "زنگ آلود بیٹری ٹرمینلز صاف کریں جو اسٹارٹنگ یا برقی مسائل کا باعث بن رہے ہوں۔",
+  "risk": "medium",
+  "tools": ["wrench for terminal clamps", "wire brush", "baking soda and water (or terminal cleaner)", "gloves and eye protection"],
+  "tools_ur": ["ٹرمینل کلیمپس کے لیے رنچ", "تار کا برش", "بیکنگ سوڈا اور پانی (یا ٹرمینل کلینر)", "دستانے اور آنکھوں کا تحفظ"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Turn the engine off and make sure no accessories are running.",
+      "say_ur": "انجن بند کریں اور یقینی بنائیں کوئی برقی چیز نہیں چل رہی۔",
+      "gate": "engine_off_cool",
+      "highlight": ["engine bay"]
+    },
+    {
+      "id": "s2",
+      "say": "Put on gloves and eye protection -- the white or greenish crust on the terminals is corrosive.",
+      "say_ur": "دستانے اور آنکھوں کی حفاظت پہنیں -- ٹرمینلز پر سفید یا سبزی مائل تہہ تیزابی ہوتی ہے۔",
+      "highlight": ["battery terminals"]
+    },
+    {
+      "id": "s3",
+      "say": "Loosen and disconnect the negative (black, -) terminal first, then the positive (red, +) terminal.",
+      "say_ur": "پہلے نیگیٹو (کالا، -) ٹرمینل ڈھیلا کر کے نکالیں، پھر پازیٹو (سرخ، +) ٹرمینل۔",
+      "highlight": ["negative terminal", "positive terminal"]
+    },
+    {
+      "id": "s4",
+      "say": "Make a paste of baking soda and water, scrub the terminals and clamps with the wire brush until clean, then rinse and dry.",
+      "say_ur": "بیکنگ سوڈا اور پانی کا پیسٹ بنائیں، تار کے برش سے ٹرمینلز اور کلیمپس کو صاف کر کے دھوئیں اور خشک کریں۔",
+      "highlight": ["battery terminals", "terminal clamps"]
+    },
+    {
+      "id": "s5",
+      "say": "Reconnect the positive (red, +) terminal first, then the negative (black, -) terminal, and tighten both firmly.",
+      "say_ur": "پہلے پازیٹو (سرخ، +) ٹرمینل دوبارہ لگائیں، پھر نیگیٹو (کالا، -) ٹرمینل، اور دونوں مضبوطی سے کسیں۔",
+      "highlight": ["positive terminal", "negative terminal"]
+    }
+  ],
+  "stop_if": [
+    "the battery case is cracked, bulging, or leaking",
+    "you smell rotten eggs (sulphur), which can mean a damaged battery",
+    "sparks occur while connecting or disconnecting terminals"
+  ],
+  "stop_if_ur": [
+    "بیٹری کا کیس ٹوٹا، پھولا، یا رِس رہا ہو",
+    "سڑے انڈوں (سلفر) کی بو آئے، جو خراب بیٹری کی علامت ہو سکتی ہے",
+    "ٹرمینلز لگاتے یا نکالتے وقت چنگاری نکلے"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

@@ -1,0 +1,52 @@
+{
+  "id": "wire-identify-map",
+  "category": "electrical",
+  "title": "Identify and map wires",
+  "title_ur": "تاروں کی شناخت اور نقشہ بنائیں",
+  "summary": "Work out what each wire in a box or fitting does before touching anything else, for any electrical task.",
+  "summary_ur": "کسی بھی برقی کام سے پہلے یہ معلوم کریں کہ باکس یا فٹنگ میں ہر تار کیا کرتی ہے۔",
+  "risk": "medium",
+  "tools": ["tester", "torch (optional)"],
+  "tools_ur": ["ٹیسٹر", "ٹارچ (اختیاری)"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Switch off the breaker for this circuit before opening anything.",
+      "say_ur": "کچھ بھی کھولنے سے پہلے اس سرکٹ کا بریکر بند کریں۔",
+      "gate": "power_off_confirmed",
+      "highlight": ["MCB"]
+    },
+    {
+      "id": "s2",
+      "say": "Touch the tester to each wire in turn. None should show power before you continue.",
+      "say_ur": "ٹیسٹر کو ہر تار پر باری باری لگائیں۔ آگے بڑھنے سے پہلے کسی میں بھی کرنٹ نہیں ہونا چاہیے۔",
+      "gate": "circuit_tested_dead",
+      "highlight": ["wires in box"]
+    },
+    {
+      "id": "s3",
+      "say": "Tap each wire on screen one at a time: I'll mark it with a colour, an ID, and note where it comes from and where it goes.",
+      "say_ur": "سکرین پر ایک ایک تار پر ٹیپ کریں: میں اسے رنگ، ایک شناخت، اور یہ نوٹ کروں گا کہ یہ کہاں سے آتی اور کہاں جاتی ہے۔",
+      "highlight": ["wires in box"],
+      "mark_wires": true
+    },
+    {
+      "id": "s4",
+      "say": "In Pakistani homes, live is usually red or brown, neutral is usually black or blue, and earth is green or green-yellow -- but always confirm with the tester, never assume by colour alone.",
+      "say_ur": "پاکستانی گھروں میں لائیو عام طور پر سرخ یا بھورا، نیوٹرل عام طور پر کالا یا نیلا، اور ارتھ سبز یا سبز-پیلا ہوتا ہے -- لیکن ہمیشہ ٹیسٹر سے تصدیق کریں، صرف رنگ پر اعتماد نہ کریں۔",
+      "highlight": ["wires in box"]
+    }
+  ],
+  "stop_if": [
+    "two or more wires are the same colour and you can't tell them apart even after tapping and testing",
+    "burn marks, melted insulation, or a burning smell",
+    "the wiring looks old, brittle, or not up to current standards and you're unsure if it's safe to touch"
+  ],
+  "stop_if_ur": [
+    "دو یا زیادہ تاریں ایک ہی رنگ کی ہوں اور ٹیپ اور ٹیسٹ کے بعد بھی پہچان نہ ہو",
+    "جلنے کے نشان، پگھلی انسولیشن، یا جلنے کی بو",
+    "تاریں پرانی، بھربھری لگیں یا آپ کو یقین نہ ہو کہ انہیں چھونا محفوظ ہے"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

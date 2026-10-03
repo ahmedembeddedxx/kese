@@ -1,0 +1,65 @@
+{
+  "id": "ac-outdoor-fan-capacitor",
+  "category": "ac",
+  "title": "Outdoor fan not spinning: capacitor",
+  "title_ur": "باہر کا پنکھا نہیں چل رہا: کپیسیٹر",
+  "summary": "Replace a failed run capacitor when the outdoor unit's fan doesn't spin but the compressor hums.",
+  "summary_ur": "رن کپیسیٹر تبدیل کریں جب باہر والے یونٹ کا پنکھا نہ چلے مگر کمپریسر بھنبھناہٹ کرے۔",
+  "risk": "high",
+  "tools": ["screwdriver", "insulated screwdriver", "tester", "new run capacitor (same uF and voltage rating)"],
+  "tools_ur": ["سکریو ڈرائیور", "انسولیٹڈ سکریو ڈرائیور", "ٹیسٹر", "نیا رن کپیسیٹر (وہی uF اور وولٹیج ریٹنگ)"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Switch the AC off at its remote, then switch off the breaker feeding the outdoor unit.",
+      "say_ur": "اے سی کو ریموٹ سے بند کریں، پھر باہر والے یونٹ کا بریکر بند کریں۔",
+      "gate": "ac_power_off",
+      "highlight": ["AC breaker"]
+    },
+    {
+      "id": "s2",
+      "say": "Touch the tester to the outdoor unit's power wires. It must show no power before you open the panel.",
+      "say_ur": "پینل کھولنے سے پہلے ٹیسٹر کو باہر والے یونٹ کی تاروں پر لگائیں۔ اس میں کرنٹ نہیں ہونا چاہیے۔",
+      "gate": "circuit_tested_dead",
+      "highlight": ["outdoor unit power wires"]
+    },
+    {
+      "id": "s3",
+      "say": "Open the outdoor unit's side panel to reach the capacitor. It's the small cylindrical can near the fan motor wiring.",
+      "say_ur": "کپیسیٹر تک پہنچنے کے لیے باہر والے یونٹ کا سائیڈ پینل کھولیں۔ یہ فین موٹر کی تاروں کے قریب چھوٹا بیلناکار ڈبہ ہے۔",
+      "highlight": ["outdoor unit capacitor"]
+    },
+    {
+      "id": "s4",
+      "say": "Discharge the capacitor by touching both its terminals together with an insulated screwdriver before touching it with bare hands.",
+      "say_ur": "ننگے ہاتھوں سے چھونے سے پہلے انسولیٹڈ سکریو ڈرائیور سے کپیسیٹر کے دونوں ٹرمینل آپس میں لگا کر اسے ڈسچارج کریں۔",
+      "gate": "capacitor_discharged",
+      "highlight": ["outdoor unit capacitor"]
+    },
+    {
+      "id": "s5",
+      "say": "Note which wire goes to which terminal (common, fan, herm), then connect the new capacitor the exact same way.",
+      "say_ur": "نوٹ کریں کون سی تار کس ٹرمینل پر ہے (کامن، فین، ہرم)، پھر نیا کپیسیٹر بالکل اسی طرح لگائیں۔",
+      "highlight": ["capacitor wires"],
+      "mark_wires": true
+    },
+    {
+      "id": "s6",
+      "say": "Close the panel, restore the breaker, and switch the AC on to confirm the outdoor fan now spins.",
+      "say_ur": "پینل بند کریں، بریکر آن کریں، اور اے سی چلا کر تصدیق کریں کہ باہر کا پنکھا اب چل رہا ہے۔",
+      "highlight": ["outdoor unit"]
+    }
+  ],
+  "stop_if": [
+    "the capacitor is bulging, leaking, or burst",
+    "burn marks, melted insulation, or a burning smell anywhere in the outdoor unit",
+    "the compressor itself doesn't hum at all, or trips the breaker immediately"
+  ],
+  "stop_if_ur": [
+    "کپیسیٹر پھولا ہوا، رِس رہا، یا پھٹا ہوا ہو",
+    "باہر والے یونٹ میں کہیں بھی جلنے کے نشان، پگھلی انسولیشن، یا جلنے کی بو",
+    "کمپریسر بالکل بھنبھناہٹ نہ کرے، یا فوراً بریکر ٹرپ کر دے"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

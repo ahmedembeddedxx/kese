@@ -1,0 +1,50 @@
+{
+  "id": "ac-noise-water-leak-diagnosis",
+  "category": "ac",
+  "title": "Noise or water leak diagnosis",
+  "title_ur": "آواز یا پانی کے رساؤ کی تشخیص",
+  "summary": "Work out the likely cause of an unusual noise or a water leak from the AC.",
+  "summary_ur": "اے سی سے غیر معمولی آواز یا پانی کے رساؤ کی ممکنہ وجہ معلوم کریں۔",
+  "risk": "low",
+  "tools": ["torch"],
+  "tools_ur": ["ٹارچ"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Describe the noise to me: is it rattling, buzzing, hissing, or grinding? And does it happen when the AC starts, runs, or stops?",
+      "say_ur": "مجھے آواز بتائیں: کھڑکھڑاہٹ، بھنبھناہٹ، سائیں سائیں، یا گھسنے کی؟ اور یہ اے سی چلتے وقت، چلنے کے دوران، یا بند ہوتے وقت ہوتی ہے؟",
+      "highlight": []
+    },
+    {
+      "id": "s2",
+      "say": "A rattling noise is often a loose panel or screw -- switch the AC off and check for anything loose on the indoor or outdoor unit casing.",
+      "say_ur": "کھڑکھڑاہٹ اکثر ڈھیلے پینل یا پیچ کی وجہ سے ہوتی ہے -- اے سی بند کریں اور اندرونی یا باہری یونٹ کی کیسنگ پر کوئی ڈھیلی چیز چیک کریں۔",
+      "gate": "ac_power_off",
+      "highlight": ["AC casing"]
+    },
+    {
+      "id": "s3",
+      "say": "For a water leak, check if it's just condensate (clear water, drain blocked -- see the blocked drain playbook) or coming from a pipe joint, which could mean a refrigerant leak.",
+      "say_ur": "پانی کے رساؤ کے لیے چیک کریں کہ یہ صرف کنڈینسیٹ ہے (صاف پانی، بند ڈرین -- بند ڈرین والی گائیڈ دیکھیں) یا پائپ کے جوڑ سے آ رہا ہے، جو ریفریجرنٹ لیک ہو سکتا ہے۔",
+      "highlight": ["pipe joints"]
+    },
+    {
+      "id": "s4",
+      "say": "A hissing sound near the pipes, along with poor cooling, is a strong sign of a refrigerant leak -- this is outside what I can help fix directly.",
+      "say_ur": "پائپوں کے قریب سائیں سائیں کی آواز، کم ٹھنڈک کے ساتھ، ریفریجرنٹ لیک کی مضبوط علامت ہے -- یہ اس چیز سے باہر ہے جس میں براہ راست مدد کر سکوں۔",
+      "highlight": ["pipe joints"]
+    }
+  ],
+  "stop_if": [
+    "hissing sound combined with an oily residue near pipe joints (refrigerant leak)",
+    "a burning smell accompanying the noise",
+    "grinding or screeching from the compressor itself"
+  ],
+  "stop_if_ur": [
+    "پائپ کے جوڑوں کے قریب سائیں سائیں کی آواز اور چکنا مادہ (ریفریجرنٹ لیک)",
+    "آواز کے ساتھ جلنے کی بو",
+    "کمپریسر سے گھسنے یا چیخنے کی آواز"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

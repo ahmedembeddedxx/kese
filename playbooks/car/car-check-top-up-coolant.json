@@ -1,0 +1,57 @@
+{
+  "id": "car-check-top-up-coolant",
+  "category": "car",
+  "title": "Check and top up coolant",
+  "title_ur": "کولنٹ چیک کریں اور بھریں",
+  "summary": "Check the coolant level in the reservoir and top it up safely.",
+  "summary_ur": "ریزروائر میں کولنٹ کی سطح چیک کریں اور اسے محفوظ طریقے سے بھریں۔",
+  "risk": "medium",
+  "tools": ["correct coolant type (or 50/50 coolant-water mix)", "funnel (optional)"],
+  "tools_ur": ["درست کولنٹ کی قسم (یا 50/50 کولنٹ-پانی مکسچر)", "فنل (اختیاری)"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Make sure the engine is off and fully cool before continuing. Never open the coolant system on a hot engine.",
+      "say_ur": "آگے بڑھنے سے پہلے یقینی بنائیں انجن بند اور مکمل ٹھنڈا ہے۔ گرم انجن پر کولنٹ سسٹم کبھی نہ کھولیں۔",
+      "gate": "engine_off_cool",
+      "highlight": ["engine bay"]
+    },
+    {
+      "id": "s2",
+      "say": "Find the coolant reservoir -- a semi-transparent plastic tank with min/max marks, separate from the main radiator cap.",
+      "say_ur": "کولنٹ ریزروائر تلاش کریں -- نیم شفاف پلاسٹک ٹینک جس پر min/max نشان ہوں، مرکزی ریڈی ایٹر کیپ سے الگ۔",
+      "highlight": ["coolant reservoir"]
+    },
+    {
+      "id": "s3",
+      "say": "Check the level against the min and max marks on the side of the tank without opening the cap.",
+      "say_ur": "کیپ کھولے بغیر ٹینک کے کنارے پر موجود min اور max نشانوں سے سطح چیک کریں۔",
+      "highlight": ["coolant reservoir markings"],
+      "read_text": true
+    },
+    {
+      "id": "s4",
+      "say": "If it's low, slowly open the reservoir cap (not the radiator cap) and top up to the max mark with the correct coolant type.",
+      "say_ur": "اگر کم ہو تو آہستہ سے ریزروائر کی کیپ کھولیں (ریڈی ایٹر کیپ نہیں) اور درست کولنٹ سے max نشان تک بھریں۔",
+      "highlight": ["coolant reservoir cap"]
+    },
+    {
+      "id": "s5",
+      "say": "Close the cap firmly and check again after the car has been driven and cooled once more.",
+      "say_ur": "کیپ مضبوطی سے بند کریں اور گاڑی چلانے اور دوبارہ ٹھنڈا ہونے کے بعد دوبارہ چیک کریں۔",
+      "highlight": ["coolant reservoir cap"]
+    }
+  ],
+  "stop_if": [
+    "the engine is hot or has recently overheated -- let it cool fully first",
+    "the radiator cap itself needs opening (higher pressure, more risk)",
+    "coolant level drops quickly and repeatedly, which points to a leak needing a technician"
+  ],
+  "stop_if_ur": [
+    "انجن گرم ہو یا ابھی حال ہی میں زیادہ گرم ہوا ہو -- پہلے مکمل ٹھنڈا ہونے دیں",
+    "ریڈی ایٹر کیپ خود کھولنے کی ضرورت پڑے (زیادہ دباؤ، زیادہ خطرہ)",
+    "کولنٹ کی سطح بار بار تیزی سے کم ہو، جو رساؤ کی نشاندہی کرے اور ٹیکنیشن کی ضرورت ہو"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

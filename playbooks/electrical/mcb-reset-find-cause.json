@@ -1,0 +1,49 @@
+{
+  "id": "mcb-reset-find-cause",
+  "category": "electrical",
+  "title": "Reset a tripped MCB and find the cause",
+  "title_ur": "ٹرپ شدہ ایم سی بی دوبارہ آن کریں اور وجہ تلاش کریں",
+  "summary": "Safely reset a tripped circuit breaker and work out what caused it to trip.",
+  "summary_ur": "ٹرپ شدہ سرکٹ بریکر کو محفوظ طریقے سے دوبارہ آن کریں اور معلوم کریں کہ یہ کیوں ٹرپ ہوا۔",
+  "risk": "medium",
+  "tools": ["torch (optional)"],
+  "tools_ur": ["ٹارچ (اختیاری)"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Find the distribution board and look for the breaker switch sitting in the middle or 'off' position, not fully up.",
+      "say_ur": "ڈسٹری بیوشن بورڈ تلاش کریں اور دیکھیں کون سا بریکر درمیان یا 'آف' پوزیشن میں ہے، مکمل اوپر نہیں۔",
+      "highlight": ["distribution board", "tripped MCB"]
+    },
+    {
+      "id": "s2",
+      "say": "Before resetting, unplug or switch off everything that was running on that circuit. A trip usually means something drew too much current.",
+      "say_ur": "دوبارہ آن کرنے سے پہلے اس سرکٹ پر چلنے والی ہر چیز بند یا ان پلگ کریں۔ ٹرپ ہونے کی وجہ عام طور پر زیادہ کرنٹ کھنچنا ہوتی ہے۔",
+      "highlight": ["appliances on the circuit"]
+    },
+    {
+      "id": "s3",
+      "say": "Push the breaker switch fully to off, then fully to on.",
+      "say_ur": "بریکر سوئچ کو مکمل آف کریں، پھر مکمل آن کریں۔",
+      "highlight": ["MCB switch"]
+    },
+    {
+      "id": "s4",
+      "say": "If it stays on, switch your appliances back on one at a time. If it trips again on a specific one, that appliance or its socket is the cause.",
+      "say_ur": "اگر یہ آن رہے تو اپنے آلات ایک ایک کر کے دوبارہ آن کریں۔ اگر کسی خاص آلے پر دوبارہ ٹرپ ہو تو وہی آلہ یا اس کا سوکٹ وجہ ہے۔",
+      "highlight": ["appliances on the circuit"]
+    }
+  ],
+  "stop_if": [
+    "the breaker trips again immediately with nothing plugged in",
+    "burn marks, melted plastic, or a burning smell at the distribution board",
+    "the breaker feels hot or makes a buzzing or crackling sound"
+  ],
+  "stop_if_ur": [
+    "کچھ بھی لگائے بغیر بریکر فوراً دوبارہ ٹرپ ہو جائے",
+    "ڈسٹری بیوشن بورڈ پر جلنے کے نشان، پگھلا پلاسٹک یا جلنے کی بو",
+    "بریکر گرم محسوس ہو یا بھنبھناہٹ یا چٹخنے کی آواز آئے"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

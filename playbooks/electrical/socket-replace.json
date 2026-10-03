@@ -1,0 +1,64 @@
+{
+  "id": "socket-replace",
+  "category": "electrical",
+  "title": "Replace a socket",
+  "title_ur": "سوکٹ تبدیل کریں",
+  "summary": "Replace a worn, loose or burnt power socket.",
+  "summary_ur": "خراب، ڈھیلا یا جلا ہوا پاور سوکٹ تبدیل کریں۔",
+  "risk": "medium",
+  "tools": ["screwdriver", "tester", "new socket (same rating and pin type)"],
+  "tools_ur": ["سکریو ڈرائیور", "ٹیسٹر", "نیا سوکٹ (وہی ریٹنگ اور پن کی قسم)"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Switch off the breaker for this room at the main board.",
+      "say_ur": "مین بورڈ سے اس کمرے کا بریکر بند کریں۔",
+      "gate": "power_off_confirmed",
+      "highlight": ["MCB", "distribution board"]
+    },
+    {
+      "id": "s2",
+      "say": "Touch the tester to the socket's pin holes. It must show no power before you continue.",
+      "say_ur": "ٹیسٹر کو سوکٹ کے سوراخوں میں لگائیں۔ آگے بڑھنے سے پہلے اس میں کرنٹ نہیں ہونا چاہیے۔",
+      "gate": "circuit_tested_dead",
+      "highlight": ["socket"]
+    },
+    {
+      "id": "s3",
+      "say": "Unscrew the socket plate and pull the socket out of the box.",
+      "say_ur": "سوکٹ کی پلیٹ کے پیچ کھولیں اور سوکٹ کو باکس سے نکالیں۔",
+      "highlight": ["socket plate", "socket screws"]
+    },
+    {
+      "id": "s4",
+      "say": "Look closely at the terminals: live, neutral and earth. Note or photograph which wire goes where.",
+      "say_ur": "ٹرمینلز کو غور سے دیکھیں: لائیو، نیوٹرل اور ارتھ۔ نوٹ کریں کون سی تار کہاں ہے یا تصویر لیں۔",
+      "highlight": ["socket terminals"],
+      "mark_wires": true
+    },
+    {
+      "id": "s5",
+      "say": "Connect each wire to the matching terminal on the new socket, especially the earth wire, and screw them in firmly.",
+      "say_ur": "ہر تار کو نئے سوکٹ کے اسی ٹرمینل پر لگائیں، خاص طور پر ارتھ کی تار، اور پیچ مضبوطی سے کسیں۔",
+      "highlight": ["new socket terminals"]
+    },
+    {
+      "id": "s6",
+      "say": "Push the socket back into the box, screw the plate on, then restore the breaker and test with a known device.",
+      "say_ur": "سوکٹ کو واپس باکس میں لگائیں، پلیٹ کے پیچ کسیں، پھر بریکر آن کر کے کسی معلوم آلے سے ٹیسٹ کریں۔",
+      "highlight": ["socket plate"]
+    }
+  ],
+  "stop_if": [
+    "burn marks, melted plastic or a burning smell around the socket",
+    "the earth wire is missing or disconnected",
+    "the back box or wiring looks damp or corroded"
+  ],
+  "stop_if_ur": [
+    "سوکٹ کے ارد گرد جلنے کے نشان، پگھلا پلاسٹک یا جلنے کی بو",
+    "ارتھ کی تار موجود نہ ہو یا کٹی ہوئی ہو",
+    "پیچھے کا باکس یا تاریں نم یا زنگ آلود نظر آئیں"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

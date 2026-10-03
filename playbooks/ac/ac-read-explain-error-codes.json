@@ -1,0 +1,43 @@
+{
+  "id": "ac-read-explain-error-codes",
+  "category": "ac",
+  "title": "Read and explain error codes",
+  "title_ur": "ایرر کوڈز پڑھیں اور سمجھائیں",
+  "summary": "Read a blinking error code on the indoor unit's display and look up what it means for this brand.",
+  "summary_ur": "اندرونی یونٹ کی ڈسپلے پر جھلکتا ایرر کوڈ پڑھیں اور معلوم کریں اس برانڈ کے لیے اس کا کیا مطلب ہے۔",
+  "risk": "low",
+  "tools": ["torch (optional)"],
+  "tools_ur": ["ٹارچ (اختیاری)"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Look at the indoor unit's display or indicator lights. Count how many times a light blinks, or read the code digits directly if there's a screen.",
+      "say_ur": "اندرونی یونٹ کی ڈسپلے یا انڈیکیٹر لائٹس دیکھیں۔ گنیں لائٹ کتنی بار جھپکتی ہے، یا اگر سکرین ہو تو کوڈ کے ہندسے براہ راست پڑھیں۔",
+      "highlight": ["indoor unit display", "indicator lights"]
+    },
+    {
+      "id": "s2",
+      "say": "Tell me the brand and model if you know it, and the exact code or blink pattern, so I can look up what it means.",
+      "say_ur": "اگر معلوم ہو تو مجھے برانڈ اور ماڈل بتائیں، اور صحیح کوڈ یا جھپکنے کا انداز، تاکہ میں اس کا مطلب تلاش کر سکوں۔",
+      "highlight": ["indoor unit display"]
+    },
+    {
+      "id": "s3",
+      "say": "Once I've found the meaning, I'll tell you whether it's something you can check yourself or whether it needs a professional.",
+      "say_ur": "مطلب معلوم ہونے کے بعد میں بتاؤں گا کہ آپ خود چیک کر سکتے ہیں یا اسے پیشہ ور کی ضرورت ہے۔",
+      "highlight": []
+    }
+  ],
+  "stop_if": [
+    "the code points to refrigerant, compressor, or high-voltage faults",
+    "burn marks, melted plastic, or a burning smell anywhere on the unit",
+    "the display shows the code continuously along with smoke or sparks"
+  ],
+  "stop_if_ur": [
+    "کوڈ ریفریجرنٹ، کمپریسر، یا ہائی وولٹیج خرابی کی طرف اشارہ کرے",
+    "یونٹ پر کہیں بھی جلنے کے نشان، پگھلا پلاسٹک، یا جلنے کی بو",
+    "ڈسپلے مسلسل کوڈ دکھائے اور ساتھ دھواں یا چنگاری بھی ہو"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

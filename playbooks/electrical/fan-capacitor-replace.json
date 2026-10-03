@@ -1,0 +1,76 @@
+{
+  "id": "fan-capacitor-replace",
+  "category": "electrical",
+  "title": "Fan not spinning or slow: replace the capacitor",
+  "title_ur": "پنکھا نہیں چل رہا یا آہستہ ہے: کپیسیٹر تبدیل کریں",
+  "summary": "Diagnose and replace a failed ceiling or pedestal fan capacitor.",
+  "summary_ur": "خراب سیلنگ یا پیڈسٹل پنکھے کا کپیسیٹر تبدیل کریں۔",
+  "risk": "medium",
+  "tools": ["screwdriver", "tester", "new capacitor (same uF rating)"],
+  "tools_ur": ["سکریو ڈرائیور", "ٹیسٹر", "نیا کپیسیٹر (وہی uF ریٹنگ)"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Switch off the fan and the breaker for this room.",
+      "say_ur": "پنکھا اور اس کمرے کا بریکر بند کریں۔",
+      "gate": "power_off_confirmed",
+      "highlight": ["fan switch", "MCB"]
+    },
+    {
+      "id": "s2",
+      "say": "Touch the tester to the fan wiring. It must show no power before you continue.",
+      "say_ur": "ٹیسٹر کو پنکھے کی تاروں سے لگائیں۔ آگے بڑھنے سے پہلے اس میں کرنٹ نہیں ہونا چاہیے۔",
+      "gate": "circuit_tested_dead",
+      "highlight": ["fan wiring"]
+    },
+    {
+      "id": "s3",
+      "say": "Open the canopy cover at the top of the fan.",
+      "say_ur": "پنکھے کے اوپر کینوپی کور کھولیں۔",
+      "highlight": ["fan canopy", "canopy screws"]
+    },
+    {
+      "id": "s4",
+      "say": "This black box is the capacitor. Read the rating printed on it before buying a replacement.",
+      "say_ur": "یہ کالا ڈبہ کپیسیٹر ہے۔ نیا خریدنے سے پہلے اس پر لکھی ریٹنگ پڑھیں۔",
+      "highlight": ["fan capacitor"],
+      "read_text": true
+    },
+    {
+      "id": "s5",
+      "say": "Discharge it by touching both wires together with an insulated screwdriver.",
+      "say_ur": "انسولیٹڈ سکریو ڈرائیور سے دونوں تاروں کو آپس میں لگا کر اسے ڈسچارج کریں۔",
+      "gate": "capacitor_discharged",
+      "mark_wires": true
+    },
+    {
+      "id": "s6",
+      "say": "Note which wire goes to which terminal, then disconnect the old capacitor and connect the new one the same way.",
+      "say_ur": "نوٹ کریں کون سی تار کس ٹرمینل پر ہے، پھر پرانا کپیسیٹر ہٹا کر نیا اسی طرح لگائیں۔",
+      "highlight": ["fan capacitor", "capacitor wires"],
+      "mark_wires": true
+    },
+    {
+      "id": "s7",
+      "say": "Close the canopy cover, restore the breaker and switch the fan on to test it.",
+      "say_ur": "کینوپی کور بند کریں، بریکر آن کریں اور پنکھا چلا کر ٹیسٹ کریں۔",
+      "highlight": ["fan canopy"]
+    }
+  ],
+  "stop_if": [
+    "burn marks on the winding or capacitor",
+    "smell of burnt insulation",
+    "sparks when testing"
+  ],
+  "stop_if_ur": [
+    "وائنڈنگ یا کپیسیٹر پر جلنے کے نشان",
+    "جلی ہوئی انسولیشن کی بو",
+    "ٹیسٹ کرتے وقت چنگاری"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {
+    "safety_reviewed": false,
+    "reviewed_by": null,
+    "reviewed_on": null
+  }
+}

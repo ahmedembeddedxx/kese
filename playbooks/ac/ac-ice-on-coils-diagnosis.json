@@ -1,0 +1,50 @@
+{
+  "id": "ac-ice-on-coils-diagnosis",
+  "category": "ac",
+  "title": "Ice on coils, low cooling diagnosis",
+  "title_ur": "کوائل پر برف، کم ٹھنڈک کی تشخیص",
+  "summary": "Work out why ice has formed on the indoor coil and the AC is cooling poorly.",
+  "summary_ur": "معلوم کریں کہ اندرونی کوائل پر برف کیوں جمی ہے اور اے سی ٹھیک سے ٹھنڈک کیوں نہیں دے رہا۔",
+  "risk": "medium",
+  "tools": ["torch"],
+  "tools_ur": ["ٹارچ"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Switch the AC off completely and let the ice melt on its own for a few hours -- never chip or scrape ice off the coil.",
+      "say_ur": "اے سی مکمل بند کریں اور برف کو چند گھنٹوں میں خود پگھلنے دیں -- کوائل سے برف کبھی کھرچیں یا توڑیں نہیں۔",
+      "gate": "ac_power_off",
+      "highlight": ["indoor coil"]
+    },
+    {
+      "id": "s2",
+      "say": "While it melts, check the filters -- dirty, clogged filters that restrict airflow are the single most common cause of icing.",
+      "say_ur": "پگھلنے کے دوران فلٹر چیک کریں -- گندے، بند فلٹر جو ہوا کا بہاؤ روکیں، برف جمنے کی سب سے عام وجہ ہیں۔",
+      "highlight": ["AC filters"]
+    },
+    {
+      "id": "s3",
+      "say": "Check that nothing is blocking the indoor vents or the airflow path in the room.",
+      "say_ur": "چیک کریں کہ کمرے میں اندرونی وینٹس یا ہوا کے راستے میں کچھ رکاوٹ نہیں ڈال رہا۔",
+      "highlight": ["indoor vents"]
+    },
+    {
+      "id": "s4",
+      "say": "Once fully melted and dry, clean the filters if needed and switch the AC back on. If ice forms again within a day even with clean filters, the refrigerant level or a sensor is likely at fault and needs a technician.",
+      "say_ur": "مکمل پگھلنے اور خشک ہونے کے بعد، ضرورت ہو تو فلٹر صاف کریں اور اے سی دوبارہ آن کریں۔ اگر صاف فلٹر کے باوجود ایک دن میں دوبارہ برف جم جائے تو شاید ریفریجرنٹ لیول یا کوئی سینسر خراب ہے جسے ٹیکنیشن کی ضرورت ہے۔",
+      "highlight": ["indoor coil"]
+    }
+  ],
+  "stop_if": [
+    "you suspect a refrigerant leak (hissing sound, oily residue near pipes)",
+    "ice forms again quickly even with clean filters and clear airflow",
+    "water is leaking heavily as the ice melts, beyond what the drain pan can handle"
+  ],
+  "stop_if_ur": [
+    "ریفریجرنٹ لیک کا شبہ ہو (سائیں سائیں آواز، پائپوں کے قریب چکنا مادہ)",
+    "صاف فلٹر اور کھلے ہوا کے راستے کے باوجود برف جلدی دوبارہ جم جائے",
+    "برف پگھلتے وقت اتنا پانی رِسے کہ ڈرین پین سنبھال نہ سکے"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

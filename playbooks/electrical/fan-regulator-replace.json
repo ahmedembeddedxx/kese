@@ -1,0 +1,64 @@
+{
+  "id": "fan-regulator-replace",
+  "category": "electrical",
+  "title": "Fan regulator replacement",
+  "title_ur": "پنکھے کا ریگولیٹر تبدیل کریں",
+  "summary": "Replace a fan speed regulator that is stuck, buzzing, or only works on one speed.",
+  "summary_ur": "پنکھے کی سپیڈ ریگولیٹر جو پھنس جائے، بھنبھناہٹ کرے، یا صرف ایک سپیڈ پر چلے، تبدیل کریں۔",
+  "risk": "medium",
+  "tools": ["screwdriver", "tester", "new regulator (same type: electronic or resistor)"],
+  "tools_ur": ["سکریو ڈرائیور", "ٹیسٹر", "نیا ریگولیٹر (وہی قسم: الیکٹرانک یا ریزسٹر)"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Switch off the fan and the breaker for this room.",
+      "say_ur": "پنکھا اور اس کمرے کا بریکر بند کریں۔",
+      "gate": "power_off_confirmed",
+      "highlight": ["fan switch", "MCB"]
+    },
+    {
+      "id": "s2",
+      "say": "Touch the tester to the regulator's wires. It must show no power before you continue.",
+      "say_ur": "ٹیسٹر کو ریگولیٹر کی تاروں پر لگائیں۔ آگے بڑھنے سے پہلے اس میں کرنٹ نہیں ہونا چاہیے۔",
+      "gate": "circuit_tested_dead",
+      "highlight": ["regulator wires"]
+    },
+    {
+      "id": "s3",
+      "say": "Unscrew the regulator's faceplate from the wall and pull it out.",
+      "say_ur": "دیوار سے ریگولیٹر کی پلیٹ کے پیچ کھول کر اسے نکالیں۔",
+      "highlight": ["regulator plate"]
+    },
+    {
+      "id": "s4",
+      "say": "Note which wire goes to which terminal, then disconnect the old regulator.",
+      "say_ur": "نوٹ کریں کون سی تار کس ٹرمینل پر ہے، پھر پرانا ریگولیٹر ہٹائیں۔",
+      "highlight": ["regulator terminals"],
+      "mark_wires": true
+    },
+    {
+      "id": "s5",
+      "say": "Connect the same wires to the new regulator the same way, push it into the box, and screw the plate back on.",
+      "say_ur": "وہی تاریں نئے ریگولیٹر پر اسی طرح لگائیں، اسے باکس میں لگائیں اور پلیٹ کے پیچ کسیں۔",
+      "highlight": ["new regulator"]
+    },
+    {
+      "id": "s6",
+      "say": "Restore the breaker and test the fan on every speed.",
+      "say_ur": "بریکر آن کریں اور پنکھے کو ہر سپیڈ پر ٹیسٹ کریں۔",
+      "highlight": ["fan switch"]
+    }
+  ],
+  "stop_if": [
+    "burn marks or melted plastic on the regulator or its wires",
+    "smell of burnt insulation",
+    "sparks when testing"
+  ],
+  "stop_if_ur": [
+    "ریگولیٹر یا اس کی تاروں پر جلنے کے نشان یا پگھلا پلاسٹک",
+    "جلی ہوئی انسولیشن کی بو",
+    "ٹیسٹ کرتے وقت چنگاری"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

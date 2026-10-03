@@ -1,0 +1,43 @@
+{
+  "id": "car-warning-light-explained",
+  "category": "car",
+  "title": "Warning light explained",
+  "title_ur": "وارننگ لائٹ کی وضاحت",
+  "summary": "Identify a dashboard warning light and explain what it means and how urgent it is.",
+  "summary_ur": "ڈیش بورڈ کی وارننگ لائٹ پہچانیں اور بتائیں اس کا کیا مطلب ہے اور یہ کتنی فوری ہے۔",
+  "risk": "low",
+  "tools": [],
+  "tools_ur": [],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "With the ignition on and the engine not yet started, show me the dashboard so I can see which lights are on.",
+      "say_ur": "اگنیشن آن ہو اور انجن ابھی اسٹارٹ نہ ہوا ہو، مجھے ڈیش بورڈ دکھائیں تاکہ میں دیکھ سکوں کون سی لائٹس آن ہیں۔",
+      "highlight": ["dashboard warning lights"]
+    },
+    {
+      "id": "s2",
+      "say": "A red warning light generally means stop and address it soon or immediately. A yellow or amber light generally means get it checked, but you can usually keep driving carefully.",
+      "say_ur": "سرخ وارننگ لائٹ عام طور پر مطلب ہے کہ رک جائیں اور جلد یا فوری توجہ دیں۔ پیلی یا نارنجی لائٹ عام طور پر مطلب ہے چیک کروائیں، مگر عام طور پر احتیاط سے گاڑی چلاتے رہ سکتے ہیں۔",
+      "highlight": ["dashboard warning lights"]
+    },
+    {
+      "id": "s3",
+      "say": "Tell me the symbol or describe it, and I'll explain exactly what it means for your car and what to do next.",
+      "say_ur": "مجھے علامت بتائیں یا اس کی وضاحت کریں، اور میں بتاؤں گا کہ آپ کی گاڑی کے لیے اس کا کیا مطلب ہے اور آگے کیا کرنا ہے۔",
+      "highlight": ["dashboard warning lights"]
+    }
+  ],
+  "stop_if": [
+    "the oil pressure or engine temperature warning light is on while driving -- stop the car safely and turn the engine off",
+    "the brake warning light is on alongside a soft or sinking brake pedal",
+    "multiple warning lights come on at once alongside unusual smells, smoke, or noises"
+  ],
+  "stop_if_ur": [
+    "گاڑی چلاتے وقت آئل پریشر یا انجن ٹمپریچر کی وارننگ لائٹ آن ہو -- گاڑی محفوظ طریقے سے روک کر انجن بند کریں",
+    "بریک وارننگ لائٹ نرم یا دھنسے ہوئے بریک پیڈل کے ساتھ آن ہو",
+    "ایک ساتھ کئی وارننگ لائٹس آن ہوں اور غیر معمولی بو، دھواں، یا آوازیں بھی ہوں"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

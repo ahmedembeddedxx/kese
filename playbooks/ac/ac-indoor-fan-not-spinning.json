@@ -1,0 +1,50 @@
+{
+  "id": "ac-indoor-fan-not-spinning",
+  "category": "ac",
+  "title": "Indoor fan not spinning",
+  "title_ur": "اندرونی پنکھا نہیں چل رہا",
+  "summary": "Diagnose why the indoor unit's blower fan isn't spinning even though the AC seems to turn on.",
+  "summary_ur": "معلوم کریں کہ اندرونی یونٹ کا بلوئر پنکھا کیوں نہیں چل رہا، جبکہ اے سی آن ہوتا نظر آتا ہے۔",
+  "risk": "medium",
+  "tools": ["torch", "tester"],
+  "tools_ur": ["ٹارچ", "ٹیسٹر"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Confirm the AC is actually receiving power: check the remote's display and any indicator lights on the indoor unit.",
+      "say_ur": "تصدیق کریں کہ اے سی کو واقعی بجلی مل رہی ہے: ریموٹ کی ڈسپلے اور اندرونی یونٹ کی انڈیکیٹر لائٹس چیک کریں۔",
+      "highlight": ["indoor unit indicator lights"]
+    },
+    {
+      "id": "s2",
+      "say": "Switch the AC off at its remote and at the wall switch before opening the panel.",
+      "say_ur": "پینل کھولنے سے پہلے اے سی کو ریموٹ اور دیوار کے سوئچ سے بند کریں۔",
+      "gate": "ac_power_off",
+      "highlight": ["AC wall switch"]
+    },
+    {
+      "id": "s3",
+      "say": "Open the front panel and look at the fan blades inside. Check nothing is physically jamming them, like a loose part or built-up dirt.",
+      "say_ur": "اگلا پینل کھولیں اور اندر پنکھے کے بلیڈز دیکھیں۔ چیک کریں کہ کوئی چیز انہیں جسمانی طور پر روک تو نہیں رہی، جیسے ڈھیلا پرزہ یا جمی ہوئی گندگی۔",
+      "highlight": ["indoor fan blades"]
+    },
+    {
+      "id": "s4",
+      "say": "If the blades are free to turn by hand and still don't spin on power, the fan motor or its capacitor has likely failed -- this needs a technician to open and test safely.",
+      "say_ur": "اگر بلیڈز ہاتھ سے آزادانہ گھومتے ہیں لیکن بجلی ملنے پر بھی نہیں چلتے، تو فین موٹر یا اس کا کپیسیٹر خراب ہو چکا ہے -- اسے محفوظ طریقے سے کھولنے اور ٹیسٹ کرنے کے لیے ٹیکنیشن کی ضرورت ہے۔",
+      "highlight": ["indoor fan motor"]
+    }
+  ],
+  "stop_if": [
+    "burn marks, melted plastic, or a burning smell near the fan motor",
+    "the motor is hot to the touch or makes a loud grinding noise",
+    "you need to remove the motor itself rather than just inspect it"
+  ],
+  "stop_if_ur": [
+    "فین موٹر کے قریب جلنے کے نشان، پگھلا پلاسٹک، یا جلنے کی بو",
+    "موٹر چھونے پر گرم ہو یا زور سے گھسنے کی آواز آئے",
+    "موٹر کو صرف دیکھنے کی بجائے نکالنے کی ضرورت پڑے"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

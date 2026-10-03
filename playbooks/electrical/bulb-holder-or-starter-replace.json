@@ -1,0 +1,57 @@
+{
+  "id": "bulb-holder-or-starter-replace",
+  "category": "electrical",
+  "title": "Replace a bulb holder or tube light starter",
+  "title_ur": "بلب ہولڈر یا ٹیوب لائٹ سٹارٹر تبدیل کریں",
+  "summary": "Replace a cracked bulb holder, or a tube light starter that makes the tube flicker or not light.",
+  "summary_ur": "ٹوٹا ہوا بلب ہولڈر، یا ٹیوب لائٹ کا سٹارٹر جو ٹمٹماہٹ کا باعث بنے، تبدیل کریں۔",
+  "risk": "low",
+  "tools": ["screwdriver", "tester", "new holder or starter (matching type)"],
+  "tools_ur": ["سکریو ڈرائیور", "ٹیسٹر", "نیا ہولڈر یا سٹارٹر (ملتی قسم کا)"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Switch off the light at the wall switch and the breaker for this room.",
+      "say_ur": "دیوار کے سوئچ اور اس کمرے کے بریکر سے لائٹ بند کریں۔",
+      "gate": "power_off_confirmed",
+      "highlight": ["wall switch", "MCB"]
+    },
+    {
+      "id": "s2",
+      "say": "For a starter: twist it a quarter turn and pull it out of its socket. For a bulb holder: note how the holder connects to the fitting before removing it.",
+      "say_ur": "سٹارٹر کے لیے: اسے چوتھائی موڑ کر سوکٹ سے نکالیں۔ بلب ہولڈر کے لیے: ہولڈر نکالنے سے پہلے دیکھیں یہ فٹنگ سے کیسے جڑا ہے۔",
+      "highlight": ["tube starter", "bulb holder"]
+    },
+    {
+      "id": "s3",
+      "say": "If you're replacing a holder, touch the tester to its wires first. It must show no power.",
+      "say_ur": "اگر ہولڈر تبدیل کر رہے ہیں تو پہلے اس کی تاروں پر ٹیسٹر لگائیں۔ اس میں کرنٹ نہیں ہونا چاہیے۔",
+      "gate": "circuit_tested_dead",
+      "highlight": ["bulb holder wires"]
+    },
+    {
+      "id": "s4",
+      "say": "Fit the new starter or holder the same way the old one was connected.",
+      "say_ur": "نیا سٹارٹر یا ہولڈر اسی طرح لگائیں جیسے پرانا لگا ہوا تھا۔",
+      "highlight": ["new starter", "new bulb holder"]
+    },
+    {
+      "id": "s5",
+      "say": "Restore the breaker and switch the light on to test it.",
+      "say_ur": "بریکر آن کریں اور لائٹ چلا کر ٹیسٹ کریں۔",
+      "highlight": ["wall switch"]
+    }
+  ],
+  "stop_if": [
+    "burn marks or melted plastic on the holder, starter or fitting",
+    "smell of burnt insulation",
+    "the tube or bulb glass is cracked or broken"
+  ],
+  "stop_if_ur": [
+    "ہولڈر، سٹارٹر یا فٹنگ پر جلنے کے نشان یا پگھلا پلاسٹک",
+    "جلی ہوئی انسولیشن کی بو",
+    "ٹیوب یا بلب کا شیشہ ٹوٹا ہوا ہو"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

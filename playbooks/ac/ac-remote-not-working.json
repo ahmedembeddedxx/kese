@@ -1,0 +1,49 @@
+{
+  "id": "ac-remote-not-working",
+  "category": "ac",
+  "title": "Remote not working",
+  "title_ur": "ریموٹ کام نہیں کر رہا",
+  "summary": "Diagnose and fix an AC remote that isn't responding.",
+  "summary_ur": "اے سی ریموٹ جو جواب نہ دے رہا ہو، اسے چیک اور ٹھیک کریں۔",
+  "risk": "low",
+  "tools": ["new batteries (matching size)"],
+  "tools_ur": ["نئی بیٹریاں (مماثل سائز)"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Open the battery cover on the back of the remote and check the batteries are inserted the right way around, matching the + and - marks.",
+      "say_ur": "ریموٹ کے پیچھے بیٹری کور کھولیں اور چیک کریں بیٹریاں صحیح سمت میں لگی ہیں، + اور - نشانات سے ملتی ہوئیں۔",
+      "highlight": ["remote battery compartment"]
+    },
+    {
+      "id": "s2",
+      "say": "Replace both batteries with fresh ones of the same size, even if the old ones seem to have some charge left.",
+      "say_ur": "دونوں بیٹریاں نئی اور مماثل سائز کی لگائیں، چاہے پرانی بیٹریوں میں کچھ چارج باقی لگے۔",
+      "highlight": ["remote batteries"]
+    },
+    {
+      "id": "s3",
+      "say": "Point the remote directly at the indoor unit's receiver, usually a small dark window, and press a button from about one metre away.",
+      "say_ur": "ریموٹ کو براہ راست اندرونی یونٹ کے ریسیور کی طرف کریں، عام طور پر ایک چھوٹی سیاہ کھڑکی، اور تقریباً ایک میٹر دور سے بٹن دبائیں۔",
+      "highlight": ["indoor unit receiver"]
+    },
+    {
+      "id": "s4",
+      "say": "If the unit still doesn't beep or respond, check the receiver window isn't covered by dust, a sticker, or an obstruction.",
+      "say_ur": "اگر یونٹ اب بھی بیپ یا جواب نہ دے تو چیک کریں ریسیور کی کھڑکی گرد، سٹیکر یا کسی رکاوٹ سے ڈھکی تو نہیں۔",
+      "highlight": ["indoor unit receiver"]
+    }
+  ],
+  "stop_if": [
+    "the remote's screen is cracked and leaking battery fluid",
+    "the indoor unit's receiver light is damaged or visibly burnt",
+    "the problem persists after fresh batteries and a clear line of sight -- the receiver circuit itself needs a technician"
+  ],
+  "stop_if_ur": [
+    "ریموٹ کی سکرین ٹوٹی ہو اور بیٹری کا مائع رِس رہا ہو",
+    "اندرونی یونٹ کی ریسیور لائٹ خراب یا واضح طور پر جلی ہوئی ہو",
+    "نئی بیٹریوں اور صاف نظر کے باوجود مسئلہ برقرار رہے -- ریسیور سرکٹ کو ٹیکنیشن کی ضرورت ہے"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

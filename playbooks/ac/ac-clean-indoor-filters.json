@@ -1,0 +1,56 @@
+{
+  "id": "ac-clean-indoor-filters",
+  "category": "ac",
+  "title": "Clean indoor filters",
+  "title_ur": "اندرونی فلٹر صاف کریں",
+  "summary": "Clean dusty AC filters to restore airflow and cooling.",
+  "summary_ur": "ہوا کا بہاؤ اور ٹھنڈک بہتر کرنے کے لیے گرد آلود اے سی فلٹر صاف کریں۔",
+  "risk": "low",
+  "tools": ["soft brush or vacuum", "water", "mild soap (optional)"],
+  "tools_ur": ["نرم برش یا ویکیوم", "پانی", "ہلکا صابن (اختیاری)"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Switch the AC off at its remote and at the wall switch.",
+      "say_ur": "اے سی کو ریموٹ اور دیوار کے سوئچ سے بند کریں۔",
+      "gate": "ac_power_off",
+      "highlight": ["AC wall switch"]
+    },
+    {
+      "id": "s2",
+      "say": "Open the front panel of the indoor unit. It usually lifts up and clicks open.",
+      "say_ur": "اندرونی یونٹ کا اگلا پینل کھولیں۔ یہ عام طور پر اوپر اٹھا کر کھلتا ہے۔",
+      "highlight": ["indoor unit front panel"]
+    },
+    {
+      "id": "s3",
+      "say": "Slide out the filters. They're the thin mesh screens right behind the panel.",
+      "say_ur": "فلٹر نکالیں۔ یہ پینل کے بالکل پیچھے پتلی جالی والی سکرینیں ہیں۔",
+      "highlight": ["AC filters"]
+    },
+    {
+      "id": "s4",
+      "say": "Vacuum or gently brush off loose dust, then rinse under running water. Use mild soap if they're greasy, and let them dry fully before refitting.",
+      "say_ur": "ڈھیلی گرد ویکیوم یا نرمی سے برش کریں، پھر بہتے پانی سے دھوئیں۔ اگر چکنے ہوں تو ہلکا صابن استعمال کریں، اور دوبارہ لگانے سے پہلے مکمل خشک ہونے دیں۔",
+      "highlight": ["AC filters"]
+    },
+    {
+      "id": "s5",
+      "say": "Slide the dry filters back in, close the panel, and switch the AC back on.",
+      "say_ur": "خشک فلٹر واپس لگائیں، پینل بند کریں، اور اے سی دوبارہ آن کریں۔",
+      "highlight": ["indoor unit front panel"]
+    }
+  ],
+  "stop_if": [
+    "a filter is torn or its frame is cracked",
+    "water is dripping from inside the unit even with the AC off",
+    "mould or a musty smell is visible on the filters or coil"
+  ],
+  "stop_if_ur": [
+    "فلٹر پھٹا ہوا ہو یا اس کا فریم ٹوٹا ہوا ہو",
+    "اے سی بند ہونے کے باوجود یونٹ کے اندر سے پانی ٹپک رہا ہو",
+    "فلٹر یا کوائل پر پھپھوندی یا سیلن کی بو نظر آئے"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}

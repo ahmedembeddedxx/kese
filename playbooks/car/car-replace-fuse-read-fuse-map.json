@@ -1,0 +1,63 @@
+{
+  "id": "car-replace-fuse-read-fuse-map",
+  "category": "car",
+  "title": "Replace a fuse, read the fuse map",
+  "title_ur": "فیوز تبدیل کریں، فیوز میپ پڑھیں",
+  "summary": "Find the right fuse using the fuse box map and replace a blown one.",
+  "summary_ur": "فیوز باکس کے میپ سے صحیح فیوز تلاش کریں اور اڑا ہوا فیوز تبدیل کریں۔",
+  "risk": "low",
+  "tools": ["fuse puller (or small pliers)", "replacement fuses (matching amp rating)"],
+  "tools_ur": ["فیوز پلر (یا چھوٹی پلاس)", "نئے فیوز (مماثل ایمپ ریٹنگ)"],
+  "steps": [
+    {
+      "id": "s1",
+      "say": "Turn the ignition off and take the key out before opening the fuse box.",
+      "say_ur": "فیوز باکس کھولنے سے پہلے اگنیشن بند کریں اور چابی نکال لیں۔",
+      "gate": "ignition_off_key_out",
+      "highlight": ["fuse box"]
+    },
+    {
+      "id": "s2",
+      "say": "Open the fuse box, usually in the dashboard or under the bonnet, and find the map printed on its cover.",
+      "say_ur": "فیوز باکس کھولیں، عام طور پر ڈیش بورڈ میں یا بونٹ کے نیچے، اور اس کے کور پر چھپا میپ تلاش کریں۔",
+      "highlight": ["fuse box cover"],
+      "read_text": true
+    },
+    {
+      "id": "s3",
+      "say": "Match the broken function (for example, the horn or a light) to its fuse number on the map.",
+      "say_ur": "خراب فنکشن (مثلاً ہارن یا کوئی لائٹ) کو میپ پر اس کے فیوز نمبر سے ملائیں۔",
+      "highlight": ["fuse map"]
+    },
+    {
+      "id": "s4",
+      "say": "Pull that fuse out with the fuse puller and check the thin metal strip inside -- if it's broken or burnt, the fuse has blown.",
+      "say_ur": "اس فیوز کو پلر سے نکالیں اور اندر کی باریک دھاتی پٹی چیک کریں -- اگر ٹوٹی یا جلی ہو تو فیوز اڑ چکا ہے۔",
+      "highlight": ["fuse"]
+    },
+    {
+      "id": "s5",
+      "say": "Push in a new fuse with the exact same amp rating -- never a higher one, which can let too much current through.",
+      "say_ur": "بالکل اسی ایمپ ریٹنگ کا نیا فیوز لگائیں -- کبھی زیادہ ریٹنگ کا نہیں، جو زیادہ کرنٹ گزرنے دے سکتا ہے۔",
+      "highlight": ["new fuse"]
+    },
+    {
+      "id": "s6",
+      "say": "Test the function that was broken. If the new fuse blows again right away, something else is causing a short and needs a technician.",
+      "say_ur": "جو فنکشن خراب تھا اسے ٹیسٹ کریں۔ اگر نیا فیوز فوراً دوبارہ اڑ جائے تو کوئی اور چیز شارٹ کا باعث بن رہی ہے اور ٹیکنیشن کی ضرورت ہے۔",
+      "highlight": []
+    }
+  ],
+  "stop_if": [
+    "a replaced fuse blows again immediately",
+    "you smell burning or see melted plastic near the fuse box",
+    "the fuse box itself looks damaged, melted, or corroded"
+  ],
+  "stop_if_ur": [
+    "نیا لگایا فیوز فوراً دوبارہ اڑ جائے",
+    "فیوز باکس کے قریب جلنے کی بو یا پگھلا پلاسٹک نظر آئے",
+    "فیوز باکس خود خراب، پگھلا، یا زنگ آلود نظر آئے"
+  ],
+  "sources": ["seed:mend-technical-plan"],
+  "review": {"safety_reviewed": false, "reviewed_by": null, "reviewed_on": null}
+}
