@@ -11,7 +11,7 @@ team's own session protocol. These are not suggestions.
    `CLAUDE.md` immediately. Judgment calls go in `decisions.md` as a new
    numbered entry (D-00N) with explicit approval status. Rewrite
    `handover.md` in full at the end of every session/turn that did real
-   work — it is overwritten, never appended to.
+   work - it is overwritten, never appended to.
 3. **Security review before every PR.** No API keys in the browser
    (ephemeral tokens only). Validate every request body with Pydantic. Cap
    upload size and rate-limit `/detect` and `/session` per user. Never log
@@ -19,7 +19,7 @@ team's own session protocol. These are not suggestions.
    their own data, plan devices and pins.
 4. **Docker first.** Run the full stack and its tests in Docker Compose
    locally before pushing. After a PR is open, batch fixes into as few
-   pushes as possible — pushes cost CI minutes.
+   pushes as possible - pushes cost CI minutes.
 5. **Commits split by type:** `feat:`, `test:`, `docs:`, `chore:`, each
    touching only its own files. No empty/placeholder commits.
 6. **PR description:** a table of files changed, then a short "Why"
@@ -45,4 +45,4 @@ team's own session protocol. These are not suggestions.
 
 Every Gemini/Replicate model ID, price, and quota referenced anywhere in
 the codebase must come from `services/api/app/config.py`. Never hardcode a
-model string or price inline — they change (see `decisions.md`).
+model string or price inline - they change (see `decisions.md`).
