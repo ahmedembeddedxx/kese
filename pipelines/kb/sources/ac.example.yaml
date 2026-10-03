@@ -1,0 +1,17 @@
+# Template -- see sources/README.md before using this for a real crawl.
+id: ac-service-manuals-example
+category: ac
+kind: pdf
+start_urls:
+  - https://example.com/support/service-manuals/
+url_patterns:
+  - ".*\\.pdf$"
+licence: "retrieval-only, cite source -- VERIFY against the real site's terms before use"
+rate_limit_seconds: 3.0
+max_pages: 100
+notes: >
+  Replace with a real service-manual / error-code index for AC brands
+  common in Pakistan (Gree, Haier, Dawlance, Orient, Kenwood, TCL and
+  others). The plan calls out error-code-to-cause-to-fix tables, part
+  locations, cleaning and drain procedures, and symptoms as what to
+  extract from this category.

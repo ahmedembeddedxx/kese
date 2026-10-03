@@ -1,0 +1,16 @@
+# Template -- see sources/README.md before using this for a real crawl.
+id: electrical-manufacturer-manuals-example
+category: electrical
+kind: html
+start_urls:
+  - https://example.com/manuals/fans-and-switches/
+url_patterns:
+  - "/manuals/.*"
+licence: "retrieval-only, cite source -- VERIFY against the real site's terms before use"
+rate_limit_seconds: 2.0
+max_pages: 200
+notes: >
+  Replace with a real manufacturer manuals index for fans, switches, MCBs
+  and extension boards sold in Pakistan. The plan calls out part names
+  and photos, wiring diagrams, capacitor ratings by fan type, step
+  procedures, and safety rules as what to extract from this category.

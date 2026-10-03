@@ -1,0 +1,19 @@
+# Template -- see sources/README.md before using this for a real crawl.
+id: car-owners-manuals-example
+category: car
+kind: pdf
+start_urls:
+  - https://example.com/owners-manuals/
+url_patterns:
+  - ".*\\.pdf$"
+licence: "retrieval-only, cite source -- VERIFY against the real site's terms before use"
+rate_limit_seconds: 3.0
+max_pages: 100
+notes: >
+  Replace with real owner's manuals for common Pakistani cars (Suzuki,
+  Toyota, Honda, KIA, Hyundai models), generic OBD-II code lists, and
+  fuse box diagrams. The plan calls out fluid locations and specs, fuse
+  maps, warning-light meanings, and no-start diagnosis trees as what to
+  extract from this category. PakWheels forum threads are a separate
+  `kind: html` source and need their own licence check -- forum terms
+  often restrict scraping more than manufacturer sites do.
