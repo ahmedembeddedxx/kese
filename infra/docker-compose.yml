@@ -1,0 +1,75 @@
+services:
+  firestore-emulator:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.firestore-emulator
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8080', r => process.exit(0)).on('error', () => process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: ..
+      dockerfile: services/api/Dockerfile
+    depends_on:
+      firestore-emulator:
+        condition: service_healthy
+    environment:
+      MEND_ENVIRONMENT: development
+      MEND_FIRESTORE_EMULATOR_HOST: firestore-emulator:8080
+      MEND_FIREBASE_PROJECT_ID: demo-mend
+      MEND_PLAYBOOKS_DIR: /playbooks
+      MEND_CORS_ORIGINS: '["http://localhost:5173"]'
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api-test:
+    build:
+      context: ..
+      dockerfile: services/api/Dockerfile
+    depends_on:
+      firestore-emulator:
+        condition: service_healthy
+    environment:
+      MEND_ENVIRONMENT: test
+      MEND_FIRESTORE_EMULATOR_HOST: firestore-emulator:8080
+      MEND_FIREBASE_PROJECT_ID: demo-mend
+      MEND_PLAYBOOKS_DIR: /playbooks
+    command: ["python", "-m", "pytest", "-q"]
+    profiles: ["test"]
+
+  web:
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+      # VITE_API_BASE_URL is baked in at build time (Vite env vars are
+      # compile-time, not runtime), so it must be a build arg, not a
+      # container env var. Not yet wired as a build ARG since the
+      # default (http://localhost:8000) already matches the `api`
+      # service's published port -- revisit if that ever changes.
+    ports:
+      - "5173:5173"
+
+  web-test:
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+      target: base
+    command: ["npm", "run", "test:ci"]
+    profiles: ["test"]
+
+  kb-pipeline-test:
+    build:
+      context: ..
+      dockerfile: pipelines/kb/Dockerfile
+    profiles: ["test"]
+

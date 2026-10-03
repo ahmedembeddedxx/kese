@@ -1,0 +1,36 @@
+# Firestore emulator for local dev/CI, used only to exercise the real
+# Firestore client library against something real instead of mocking it
+# away entirely. Built at image-build time (not `npx` at container start)
+# so the container needs no network access to run, and so startup is fast
+# and deterministic in CI.
+#
+# Build context is the repo root (see docker-compose.yml).
+FROM mirror.gcr.io/library/node:22-slim
+
+# The Firestore emulator is a JVM program under the hood.
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends default-jre-headless && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /emulator
+
+# See services/api/Dockerfile for why .docker/ is handled this way.
+COPY .docker/ /tmp/extra-ca/
+RUN set -eu; \
+    EXTRA_CERT="/tmp/extra-ca/ca-bundle.crt"; \
+    if [ -f "$EXTRA_CERT" ]; then \
+      npm config set cafile "$EXTRA_CERT"; \
+      export NODE_EXTRA_CA_CERTS="$EXTRA_CERT"; \
+    fi; \
+    npm install -g firebase-tools@13; \
+    npm config delete cafile || true; \
+    # Pre-download the Firestore emulator JAR at build time, so the
+    # container needs no network access to start.
+    firebase setup:emulators:firestore; \
+    rm -rf /tmp/extra-ca
+
+COPY infra/firebase.json infra/firestore.rules infra/firestore.indexes.json ./
+
+EXPOSE 8080
+
+CMD ["firebase", "emulators:start", "--only", "firestore", "--project", "demo-mend"]
