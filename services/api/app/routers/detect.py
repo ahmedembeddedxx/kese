@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import binascii
+import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
@@ -12,6 +13,7 @@ from app.rate_limit import limiter
 from app.services.gemini_client import GeminiClient, GeminiClientError, decode_image_b64
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.post("/detect", response_model=DetectResponse)
@@ -41,9 +43,10 @@ def detect(
             image_bytes=image_bytes, targets=body.targets, min_confidence=body.min_confidence
         )
     except GeminiClientError as exc:
+        logger.warning("Detection failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Detection failed: {exc}",
+            detail="Detection is temporarily unavailable. Please try again shortly.",
         ) from exc
 
     detections = [

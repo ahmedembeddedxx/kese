@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from app.auth import AuthedUser, get_current_user
@@ -12,6 +14,7 @@ from app.rate_limit import limiter
 from app.services.gemini_client import GeminiClient, GeminiClientError
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.post("/session", response_model=SessionResponse)
@@ -50,9 +53,12 @@ def create_session(
             tool_names=TOOL_NAMES,
         )
     except GeminiClientError as exc:
+        # Log the real cause server-side; never echo internal exception
+        # text (which can reveal configuration state) back to the client.
+        logger.warning("Could not start a Live session: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Could not start a Live session: {exc}",
+            detail="Could not start a Live session right now. Please try again shortly.",
         ) from exc
 
     return SessionResponse(

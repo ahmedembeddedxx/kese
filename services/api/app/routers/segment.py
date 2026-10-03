@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import binascii
+import logging
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -14,6 +15,7 @@ from app.services.gemini_client import decode_image_b64
 from app.services.replicate_client import ReplicateClient, ReplicateClientError
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.post("/segment", response_model=SegmentResponse)
@@ -43,9 +45,10 @@ def segment(
             image_bytes=image_bytes, point=(body.point.x, body.point.y)
         )
     except ReplicateClientError as exc:
+        logger.warning("Segmentation fallback failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Segmentation fallback failed: {exc}",
+            detail="Wire segmentation is temporarily unavailable. Please try again shortly.",
         ) from exc
 
     from app.config import ModelConfig
