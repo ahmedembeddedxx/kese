@@ -1,0 +1,96 @@
+"""Single source of truth for model IDs, prices and quotas.
+
+Per decisions.md D-005: never hardcode a Gemini/Replicate model string or
+a price anywhere else in the codebase. When a model is renamed or a price
+changes, this is the only file that needs to change.
+
+Prices are USD, taken from the Gemini API pricing page as cited in the
+Mend technical plan (Oct 3, 2026). The Flash-Lite rates are introductory
+and are scheduled to rise on 1 January 2027 per that page -- re-check
+before relying on them past that date.
+"""
+
+from __future__ import annotations
+
+from functools import lru_cache
+
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class ModelConfig:
+    """Model identifiers used across the backend and the browser client."""
+
+    LIVE = "gemini-3.8-live"
+    DETECTION = "gemini-3.1-flash-lite"
+    EMBEDDING = "gemini-embedding-001"
+    SEGMENTATION_FALLBACK = "meta/sam-2"  # Replicate model slug, confirm before first real use
+
+
+class PricingConfig:
+    """USD prices, used for cost estimation and budget-alert logging only.
+
+    These are not billing authority -- the Google Cloud and Replicate
+    consoles are. This is used to estimate `/events` cost logs so we can
+    compare against the real bill (see technical plan, "Watch real usage,
+    not estimates").
+    """
+
+    LIVE_AUDIO_IN_PER_MINUTE = 0.005
+    LIVE_VIDEO_IN_PER_MINUTE = 0.002
+    LIVE_AUDIO_OUT_PER_MINUTE = 0.018
+
+    DETECTION_INPUT_PER_1M_TOKENS = 0.25
+    DETECTION_OUTPUT_PER_1M_TOKENS = 1.50
+
+    # Replicate SAM fallback cost varies by model/run time; this is the
+    # documented range from the plan, used only as a rough estimate.
+    SEGMENTATION_FALLBACK_LOW = 0.001
+    SEGMENTATION_FALLBACK_HIGH = 0.015
+
+    TYPICAL_SESSION_USD = 0.17
+    WORST_CASE_SESSION_USD = 0.22
+    DEFAULT_BUDGET_ALERT_USD = 20.0
+
+
+class Settings(BaseSettings):
+    """Runtime configuration, loaded from environment variables / .env."""
+
+    model_config = SettingsConfigDict(env_file=".env", env_prefix="MEND_", extra="ignore")
+
+    environment: str = Field(default="development")  # development | test | production
+
+    gemini_api_key: str | None = Field(default=None)
+    replicate_api_token: str | None = Field(default=None)
+
+    firebase_project_id: str | None = Field(default=None)
+    firestore_emulator_host: str | None = Field(default=None)
+
+    cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:5173"])
+
+    # Safety limits (see AGENTS.md security review rule).
+    max_upload_bytes: int = Field(default=2_000_000)  # 2 MB, comfortably above a 1024px JPEG
+    detect_rate_limit: str = Field(default="20/minute")
+    session_rate_limit: str = Field(default="10/minute")
+    segment_rate_limit: str = Field(default="20/minute")
+
+    ephemeral_token_ttl_seconds: int = Field(default=600)
+
+    @property
+    def is_production(self) -> bool:
+        return self.environment == "production"
+
+    @property
+    def dev_auth_allowed(self) -> bool:
+        """Whether the `dev:<uid>` bearer-token bypass is allowed.
+
+        Only ever true outside production, and only used so the stack can
+        be exercised end-to-end in Docker Compose / CI without a real
+        Firebase project. See decisions.md D-006.
+        """
+        return self.environment in {"development", "test"}
+
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()
