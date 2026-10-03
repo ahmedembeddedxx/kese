@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Mirrors `infra/docker-compose.yml`'s test profile exactly (AGENTS.md:
+# "no surprises between local and CI" / "Docker first"). Each job builds
+# and runs the same images a developer runs locally with
+# `docker compose --profile test up`.
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build backend + Firestore emulator images
+        run: docker compose -f infra/docker-compose.yml --profile test build firestore-emulator api-test
+      - name: Start Firestore emulator
+        run: docker compose -f infra/docker-compose.yml up -d firestore-emulator
+      - name: Run backend tests
+        run: docker compose -f infra/docker-compose.yml run --rm api-test python -m pytest -q
+      - name: Lint backend
+        run: docker compose -f infra/docker-compose.yml run --rm api-test ruff check app tests
+      - name: Tear down
+        if: always()
+        run: docker compose -f infra/docker-compose.yml down -v
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build frontend test image
+        run: docker compose -f infra/docker-compose.yml --profile test build web-test
+      - name: Run frontend tests
+        run: docker compose -f infra/docker-compose.yml run --rm web-test npm run test:ci
+      - name: Typecheck frontend
+        run: docker compose -f infra/docker-compose.yml run --rm web-test npx tsc -b --noEmit
+      - name: Lint frontend
+        run: docker compose -f infra/docker-compose.yml run --rm web-test npx oxlint src
+      - name: Verify production build
+        run: docker compose -f infra/docker-compose.yml build web
+
+  kb-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build KB pipeline test image
+        run: docker compose -f infra/docker-compose.yml --profile test build kb-pipeline-test
+      - name: Run KB pipeline tests
+        run: docker compose -f infra/docker-compose.yml run --rm kb-pipeline-test python -m pytest -q
+      - name: Lint KB pipeline
+        run: docker compose -f infra/docker-compose.yml run --rm kb-pipeline-test ruff check kb_pipeline tests
