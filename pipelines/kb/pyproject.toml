@@ -1,0 +1,43 @@
+[project]
+name = "mend-kb-pipeline"
+version = "0.1.0"
+description = "Crawl -> extract -> structure -> clean -> embed pipeline for Mend's knowledge base"
+requires-python = ">=3.12"
+dependencies = [
+  "pydantic>=2.9",
+  "pydantic-settings>=2.6",
+  "pyyaml>=6.0",
+  "httpx>=0.27",
+  "trafilatura>=1.12",
+  "pymupdf>=1.24",
+  "datasketch>=1.6",
+  "click>=8.1",
+  "google-genai>=0.3",
+  "google-cloud-firestore>=2.19",
+  "google-cloud-storage>=2.18",
+  # crawl4ai (+ its Playwright dependency) is intentionally NOT pinned here
+  # yet -- see kb_pipeline/crawl.py and README.md. It needs a real target
+  # site list and a browser install step before it's worth the weight in
+  # every dev environment that just wants to run extract/structure/clean/
+  # embed against local fixtures.
+]
+
+[project.optional-dependencies]
+crawl = ["crawl4ai>=0.4"]
+dev = [
+  "pytest>=8.3",
+  "ruff>=0.7",
+]
+
+[tool.setuptools.packages.find]
+include = ["kb_pipeline*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
