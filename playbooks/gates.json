@@ -1,0 +1,14 @@
+{
+  "gates": {
+    "power_off_confirmed": {"en": "Breaker is off", "ur": "بریکر بند ہے", "no_en": "Not yet", "no_ur": "ابھی نہیں", "prompt_en": "Switch off the breaker for this room and the appliance switch.", "prompt_ur": "اس کمرے کا بریکر اور آلے کا سوئچ بند کریں۔"},
+    "circuit_tested_dead": {"en": "Tester shows no power", "ur": "ٹیسٹر میں کرنٹ نہیں", "no_en": "Not yet", "no_ur": "ابھی نہیں", "prompt_en": "Touch the tester to the wires. It must show no power.", "prompt_ur": "ٹیسٹر کو تاروں سے لگائیں۔ اس میں کرنٹ نہیں آنا چاہیے۔"},
+    "capacitor_discharged": {"en": "Capacitor discharged", "ur": "کپیسیٹر ڈسچارج ہو گیا", "no_en": "Not yet", "no_ur": "ابھی نہیں", "prompt_en": "Discharge the capacitor with an insulated screwdriver.", "prompt_ur": "انسولیٹڈ سکریو ڈرائیور سے کپیسیٹر ڈسچارج کریں۔"},
+    "ac_power_off": {"en": "AC is off at the breaker", "ur": "اے سی بریکر سے بند ہے", "no_en": "Not yet", "no_ur": "ابھی نہیں", "prompt_en": "Switch the AC off at its wall switch and breaker.", "prompt_ur": "اے سی کو دیوار کے سوئچ اور بریکر سے بند کریں۔"},
+    "engine_off_cool": {"en": "Engine is off and cool", "ur": "انجن بند اور ٹھنڈا ہے", "no_en": "Not yet", "no_ur": "ابھی نہیں", "prompt_en": "Turn the engine off and let it cool down.", "prompt_ur": "انجن بند کریں اور ٹھنڈا ہونے دیں۔"},
+    "handbrake_on": {"en": "Handbrake is on", "ur": "ہینڈ بریک لگی ہے", "no_en": "Not yet", "no_ur": "ابھی نہیں", "prompt_en": "Park on flat ground and pull the handbrake.", "prompt_ur": "ہموار جگہ پر گاڑی کھڑی کریں اور ہینڈ بریک لگائیں۔"},
+    "ignition_off_key_out": {"en": "Ignition off, key out", "ur": "اگنیشن بند، چابی نکال لی", "no_en": "Not yet", "no_ur": "ابھی نہیں", "prompt_en": "Turn the ignition off and take the key out.", "prompt_ur": "اگنیشن بند کریں اور چابی نکال لیں۔"},
+    "wheel_chocked": {"en": "Wheels blocked, car is stable", "ur": "پہیے روک دیے، گاڑی مستحکم ہے", "no_en": "Not yet", "no_ur": "ابھی نہیں", "prompt_en": "Block the wheels that stay on the ground and check the car cannot roll.", "prompt_ur": "زمین پر رہنے والے پہیوں کے آگے روک لگائیں اور دیکھیں کہ گاڑی لڑھک نہ سکے۔"},
+    "jump_cars_ready": {"en": "Both cars are off and cables are not touching", "ur": "دونوں گاڑیاں بند ہیں اور تاریں آپس میں نہیں چھو رہیں", "no_en": "Not yet", "no_ur": "ابھی نہیں", "prompt_en": "Both engines off, handbrakes on, cable clamps not touching each other.", "prompt_ur": "دونوں انجن بند، ہینڈ بریک لگی، اور کلیمپ آپس میں نہ چھوئیں۔"},
+    "area_ventilated_no_flame": {"en": "No flame or smoking nearby", "ur": "قریب کوئی شعلہ یا سگریٹ نہیں", "no_en": "Not yet", "no_ur": "ابھی نہیں", "prompt_en": "Make sure there is no flame, spark or smoking nearby.", "prompt_ur": "یقینی بنائیں کہ قریب کوئی شعلہ، چنگاری یا سگریٹ نہ ہو۔"}
+  }
+}
