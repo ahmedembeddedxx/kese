@@ -82,6 +82,7 @@ def build_auth_token_config(
     live_config: dict,
     tool_declarations: list[dict],
     system_prompt: str,
+    model: str | None = None,
     now: datetime | None = None,
 ):
     """Build the typed `CreateAuthTokenConfig` that locks the Live config.
@@ -104,7 +105,7 @@ def build_auth_token_config(
         expire_time=expire_time,
         new_session_expire_time=new_session_expire,
         live_connect_constraints=types.LiveConnectConstraints(
-            model=ModelConfig.LIVE,
+            model=model or ModelConfig.LIVE,
             config=types.LiveConnectConfig(**constrained_config),
         ),
     )
@@ -134,6 +135,7 @@ class GeminiClient:
         live_config: dict,
         tool_declarations: list[dict],
         system_prompt: str,
+        model: str | None = None,
     ) -> EphemeralToken:
         """Mint a short-lived token the browser uses to open the Live
         WebSocket directly, so the real API key never reaches the phone.
@@ -142,7 +144,9 @@ class GeminiClient:
         browser, so the config the token locks server-side and the config
         the browser sends can never drift apart. Not exercised against a
         live key (and the `v1alpha` API version some SDK releases need for
-        ephemeral tokens is unverified).
+        ephemeral tokens is unverified). `model` is the Live model the token
+        is locked to (default `ModelConfig.LIVE`); `/session` passes the same
+        value it returns as `live_model`.
         """
         client = self._client()
         auth_config, expire_time = build_auth_token_config(
@@ -150,6 +154,7 @@ class GeminiClient:
             live_config=live_config,
             tool_declarations=tool_declarations,
             system_prompt=system_prompt,
+            model=model,
         )
         token_obj = client.auth_tokens.create(config=auth_config)
         token_value = getattr(token_obj, "name", None) or getattr(token_obj, "token", None)

@@ -58,19 +58,26 @@ class SessionRequest(BaseModel):
     category: Category
     device_hint: str | None = Field(default=None, max_length=200)
     playbook_id: str | None = Field(default=None, pattern="^[a-z0-9]+(-[a-z0-9]+)*$")
-    language: str = Field(default="en", pattern="^(en|ur)$")
+    # "auto" lets the voice stack detect English or Urdu from what the user says.
+    language: str = Field(default="auto", pattern="^(auto|en|ur)$")
     # Which voice stack the client would like. The server resolves the
     # ACTIVE provider and may fall back to "gemini" (see SessionResponse.voice).
     voice_provider: Literal["gemini", "elevenlabs"] = "elevenlabs"
     # Disclaimer and consent on first use is a safety feature from the plan.
     consent: bool = False
+    # Optional picks from the settings sheet (see GET /options). None means
+    # the server default. Unknown models / voices are rejected with 400.
+    voice_id: str | None = Field(default=None, pattern="^[A-Za-z0-9_-]{8,64}$")
+    live_model: str | None = Field(default=None, pattern="^[A-Za-z0-9._-]{3,80}$")
+    tts_model: str | None = Field(default=None, pattern="^[A-Za-z0-9._-]{3,80}$")
 
 
 class ElevenLabsSTTSession(BaseModel):
     url: str
     token: str
     model_id: str
-    language_code: str
+    # None for language "auto": the browser omits the parameter so Scribe auto-detects.
+    language_code: str | None
     audio_format: str
     commit_strategy: str
     vad_silence_threshold_secs: float
@@ -82,7 +89,7 @@ class ElevenLabsTTSSession(BaseModel):
     model_id: str
     voice_id: str
     output_format: str
-    language_code: str
+    language_code: str | None
 
 
 class ElevenLabsSession(BaseModel):
@@ -93,7 +100,7 @@ class ElevenLabsSession(BaseModel):
 
 class SessionVoice(BaseModel):
     provider: Literal["gemini", "elevenlabs"]
-    language: Literal["ur", "en"]
+    language: Literal["auto", "ur", "en"]
     elevenlabs: ElevenLabsSession | None = None
 
 
@@ -130,6 +137,42 @@ class VoiceTokenRequest(BaseModel):
 class VoiceTokenResponse(BaseModel):
     token: str
     ttl_seconds: int
+
+
+# ---------------------------------------------------------------------------
+# GET /options
+#
+# What the settings sheet offers: the account's ElevenLabs voices plus the
+# selectable Live and TTS models, and the server defaults.
+# ---------------------------------------------------------------------------
+
+
+class VoiceOption(BaseModel):
+    voice_id: str
+    name: str
+    category: str | None = None
+    description: str | None = None
+    preview_url: str | None = None
+
+
+class ModelOption(BaseModel):
+    id: str
+    label: str
+
+
+class OptionsDefaults(BaseModel):
+    voice_id: str | None
+    live_model: str
+    tts_model: str
+    voice_provider: Literal["elevenlabs", "gemini"]
+
+
+class OptionsResponse(BaseModel):
+    voices: list[VoiceOption]
+    live_models: list[ModelOption]
+    tts_models: list[ModelOption]
+    defaults: OptionsDefaults
+    elevenlabs_available: bool
 
 
 # ---------------------------------------------------------------------------

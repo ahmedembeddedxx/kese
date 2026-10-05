@@ -12,10 +12,13 @@ before relying on them past that date.
 
 from __future__ import annotations
 
+import re
 from functools import lru_cache
 
 from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_MODEL_ID_RE = re.compile(r"[A-Za-z0-9._-]{3,80}")
 
 
 class ModelConfig:
@@ -37,6 +40,19 @@ class ModelConfig:
     ELEVENLABS_STT_LANGUAGE_UR = "urd"
     ELEVENLABS_STT_LANGUAGE_EN = "eng"
     ELEVENLABS_OUTPUT_FORMAT = "pcm_24000"
+
+    # Models the user may pick in the settings sheet. Only ids we can
+    # verify are listed here; the team can append more via the
+    # MEND_LIVE_MODEL_OPTIONS_EXTRA / MEND_TTS_MODEL_OPTIONS_EXTRA env vars
+    # (see `Settings`) without a code change. The first entry of each list
+    # is the default. Every TTS option must support Urdu.
+    LIVE_MODEL_OPTIONS: list[dict[str, str]] = [
+        {"id": LIVE, "label": "Default"},
+    ]
+    TTS_MODEL_OPTIONS: list[dict[str, str]] = [
+        {"id": ELEVENLABS_TTS, "label": "Turbo (fastest)"},
+        {"id": "eleven_v3", "label": "v3 (most expressive)"},
+    ]
 
 
 class PricingConfig:
@@ -96,6 +112,12 @@ class Settings(BaseSettings):
     session_rate_limit: str = Field(default="10/minute")
     segment_rate_limit: str = Field(default="20/minute")
     voice_token_rate_limit: str = Field(default="30/minute")
+    options_rate_limit: str = Field(default="30/minute")
+
+    # Comma separated model ids appended to the selectable model lists
+    # (label = id), so models can be added by env without a code change.
+    live_model_options_extra: str = Field(default="")
+    tts_model_options_extra: str = Field(default="")
 
     ephemeral_token_ttl_seconds: int = Field(default=600)
 
@@ -123,10 +145,32 @@ class Settings(BaseSettings):
     def check_dev_fakes(self) -> Settings:
         """Fail loudly at startup if fakes are switched on in production."""
         if self.dev_fakes and not self.dev_fakes_allowed:
-            raise ValueError(
-                "MEND_DEV_FAKES must not be enabled when MEND_ENVIRONMENT=production"
-            )
+            raise ValueError("MEND_DEV_FAKES must not be enabled when MEND_ENVIRONMENT=production")
         return self
+
+
+def _with_extras(base: list[dict[str, str]], extra: str) -> list[dict[str, str]]:
+    """`base` plus the comma separated ids in `extra` (label = id).
+
+    Ids that do not match the request pattern, or that are already listed,
+    are skipped, so a typo in the env var cannot break /options.
+    """
+    options = [dict(option) for option in base]
+    seen = {option["id"] for option in options}
+    for raw in extra.split(","):
+        model_id = raw.strip()
+        if model_id and model_id not in seen and _MODEL_ID_RE.fullmatch(model_id):
+            options.append({"id": model_id, "label": model_id})
+            seen.add(model_id)
+    return options
+
+
+def live_model_options(settings: Settings) -> list[dict[str, str]]:
+    return _with_extras(ModelConfig.LIVE_MODEL_OPTIONS, settings.live_model_options_extra)
+
+
+def tts_model_options(settings: Settings) -> list[dict[str, str]]:
+    return _with_extras(ModelConfig.TTS_MODEL_OPTIONS, settings.tts_model_options_extra)
 
 
 @lru_cache

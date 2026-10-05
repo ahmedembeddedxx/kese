@@ -29,6 +29,7 @@ class FakeGeminiClient:
         live_config: dict,
         tool_declarations: list[dict],
         system_prompt: str,
+        model: str | None = None,
     ) -> EphemeralToken:
         return EphemeralToken(
             token="fake-ephemeral-token",
