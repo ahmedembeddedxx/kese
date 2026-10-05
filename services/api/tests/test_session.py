@@ -12,7 +12,7 @@ def test_create_session_general_mode(client, auth_headers):
     body = response.json()
     assert body["ephemeral_token"] == "fake-ephemeral-token"
     assert body["playbook_id"] is None
-    assert "Mend" in body["system_prompt"]
+    assert "Kese AI" in body["system_prompt"]
 
 
 def test_create_session_with_playbook(client, auth_headers):
