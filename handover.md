@@ -7,6 +7,7 @@ Focus is now UI polish. A keyless clickable demo was published as a
 Claude artifact for design review (build: `node apps/web/scripts/build-demo.mjs`).
 
 ## Just Done
+- Latest (D-015): UI is English only, nicer fonts, voice auto-detects English + Urdu, settings sheet (engine, voice, speech model, vision model) backed by `GET /options` and allow-listed `/session` fields; 147 API + 193 web tests.
 - Backend: ElevenLabs single-use tokens (`/voice/token`, `voice` block in
   `/session`), server-side fallback to Gemini audio, mandatory consent,
   Live config (TEXT/AUDIO, resumption, compression, multi-use token),
@@ -24,7 +25,7 @@ Claude artifact for design review (build: `node apps/web/scripts/build-demo.mjs`
   D-012). Decisions D-012 to D-014 logged.
 
 ## Next Step
-Collect Ahmed's UI feedback on the demo and iterate. Then, with real keys:
+PR the English-only UI + settings work (branch `claude/dazzling-mendel-wzr1ar`), then collect Ahmed's feedback and iterate. Then, with real keys:
 1. Put `MEND_ELEVENLABS_API_KEY`, `MEND_ELEVENLABS_VOICE_ID` (an Urdu
    voice), `MEND_GEMINI_API_KEY`, `MEND_REPLICATE_API_TOKEN` in
    `services/api/.env`, run the stack, test on a real phone.

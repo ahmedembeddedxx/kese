@@ -366,3 +366,37 @@
 - **Approved by:** Ahmed (direction); details self-approved.
 - **Status:** Active. Visual QA done with Playwright against a fake camera
   only; needs a real phone pass.
+
+## D-015 - English-only UI, multilingual voice, user-selectable voice and models
+- **Date:** 2026-10-05
+- **Context:** After seeing the Urdu-first UI, Ahmed asked for a nicer font
+  (it need not support Urdu), to drop the Urdu language / RTL interface
+  ("only the talking part" is multilingual: an English + Urdu model), and
+  for options to choose the model, voice and so on.
+- **Decision:** Supersedes the "Urdu default, RTL, Nastaliq" part of D-014.
+  The interface is English only (Figtree for text, Bricolage Grotesque for
+  headings; Noto Naskh stays only as a fallback so Urdu captions, which
+  follow what the user speaks, render properly). The session `language` is
+  now `auto` by default: Scribe auto-detects (no `language_code`), the
+  TTS language code is omitted, Gemini-audio fallback sets no `speechConfig`,
+  and the prompt tells the agent to answer in the language the user speaks.
+  A settings sheet (Home) lets the user pick the voice engine (ElevenLabs or
+  Gemini), the ElevenLabs voice, the speech model (`eleven_v4_turbo` or
+  `eleven_v3`) and the vision model. `GET /options` serves the lists;
+  `/session` takes optional `voice_id`, `live_model`, `tts_model` and
+  rejects anything not in the lists (400 `unknown_model` / `unknown_voice`,
+  so a client cannot make us mint tokens for arbitrary models or bill
+  arbitrary voices). With only an ElevenLabs key and no configured voice,
+  the account's first voice is used rather than dropping to Gemini audio.
+  More models can be added by env (`MEND_LIVE_MODEL_OPTIONS_EXTRA`,
+  `MEND_TTS_MODEL_OPTIONS_EXTRA`) with no code change.
+- **Rationale:** The customer speaks Urdu and English mixed; an interface in
+  one language with a voice that follows the speaker is simpler and more
+  reliable than a language switch. Server-side allow-lists keep the choice
+  safe.
+- **Alternatives considered:** Keeping an Urdu UI toggle (rejected by
+  Ahmed); free-text model/voice fields (rejected: abuse and cost risk).
+- **Approved by:** Ahmed (explicit request).
+- **Status:** Active. Unverified: Scribe and Gemini native audio
+  auto-detecting Urdu vs English, `eleven_v3` over the text-to-dialogue
+  socket, and arbitrary Gemini models inside an ephemeral token.
