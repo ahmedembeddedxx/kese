@@ -43,9 +43,10 @@ export const ScreenShareIcon = (p: IconProps) => (
 );
 
 export const TorchIcon = ({ filled, ...p }: IconProps & { filled?: boolean }) => (
-  <Icon {...p} fill={filled ? "currentColor" : "none"}>
-    <path d="M8 3h8l-1.4 5.5a3 3 0 0 0 .5 2.5L16 12.3V20a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-7.7l.9-1.3a3 3 0 0 0 .5-2.5z" />
-    <path d="M12 14.5v2.5" />
+  <Icon {...p}>
+    <path d="M7 3h10l-1.6 5H8.6z" fill={filled ? "currentColor" : "none"} />
+    <path d="M9 8h6v11.5a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 19.5z" />
+    <path d="M12 12v3" />
   </Icon>
 );
 

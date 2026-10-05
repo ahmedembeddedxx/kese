@@ -49,7 +49,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #0e0d0b;
     --bg-raised: #1a1815;
     --fg: #f4f1ea;
@@ -60,7 +60,23 @@
     --accent-soft: rgb(255 176 32 / 0.16);
     --danger: #ff6b5e;
     --ok: #5fd184;
+    color-scheme: dark;
   }
+}
+
+/* Same dark values for hosts that set the theme explicitly. */
+:root[data-theme="dark"] {
+  --bg: #0e0d0b;
+  --bg-raised: #1a1815;
+  --fg: #f4f1ea;
+  --fg-muted: #b3ad9f;
+  --hairline: rgb(255 255 255 / 0.12);
+  --accent: #ffb020;
+  --accent-fg: #1b1200;
+  --accent-soft: rgb(255 176 32 / 0.16);
+  --danger: #ff6b5e;
+  --ok: #5fd184;
+  color-scheme: dark;
 }
 
 @theme inline {

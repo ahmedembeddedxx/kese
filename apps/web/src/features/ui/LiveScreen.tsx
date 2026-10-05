@@ -28,7 +28,9 @@ import { captureFrameAsJpegBase64 } from "../../lib/camera";
 import { type Phase, useLiveStore } from "../../store/liveStore";
 import { useOverlayStore } from "../../store/overlayStore";
 import { useSessionStore } from "../../store/sessionStore";
-import { useLiveSession } from "../live/useLiveSession";
+import { IS_MOCK_LIVE, useLiveSession } from "../live/useLiveSession";
+import { MOCK_SCENE_URI } from "../live/mockScene";
+import { MockDemoBar } from "../../components/MockDemoBar";
 import { OverlayCanvas } from "../overlay/OverlayCanvas";
 
 const PHASE_LABEL: Record<Phase, StringKey> = {
@@ -111,10 +113,13 @@ export function LiveScreen({ apiBaseUrl, apiClient }: LiveScreenProps) {
         autoPlay
         playsInline
         muted
-        className="absolute inset-0 h-full w-full object-cover"
+        className={`absolute inset-0 h-full w-full object-cover ${IS_MOCK_LIVE ? "hidden" : ""}`}
         style={{ transform: mirrored ? "scaleX(-1)" : undefined }}
         data-testid="camera-video"
       />
+      {IS_MOCK_LIVE && (
+        <img src={MOCK_SCENE_URI} alt="" className="absolute inset-0 h-full w-full object-cover" />
+      )}
       {/* Scrims keep white controls and captions legible over any scene. */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/45 to-transparent" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-black/70 to-transparent" />
@@ -139,6 +144,7 @@ export function LiveScreen({ apiBaseUrl, apiClient }: LiveScreenProps) {
       </div>
 
       <StepsPanel />
+      {IS_MOCK_LIVE && <MockDemoBar />}
 
       {hintEn && (
         <div className="glass absolute inset-x-0 top-24 z-10 mx-auto w-fit rounded-full px-4 py-2 text-sm font-semibold">

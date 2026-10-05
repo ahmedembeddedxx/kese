@@ -484,13 +484,8 @@ export function useLiveSession({ apiBaseUrl }: UseLiveSessionArgs) {
         const live = useLiveStore.getState();
         live.reset();
         flags.connected = true;
-        const camera = new CameraController();
-        cameraRef.current = camera;
-        try {
-          await attachCamera(camera, "environment");
-        } catch {
-          // Mock mode without a camera still renders the UI.
-        }
+        // Demo mode never touches the camera; it shows a drawn scene instead.
+        live.setCameraState({ canFlip: true, canShareScreen: true, torchSupported: true });
         stopMockRef.current = runMockLive(levelRef);
         return;
       }

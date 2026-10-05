@@ -1,5 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { ApiClient } from "./lib/apiClient";
+import { MockApiClient } from "./lib/mockApi";
+import { IS_MOCK_LIVE } from "./features/live/useLiveSession";
 import { getAuthToken } from "./lib/auth";
 import { ConsentScreen } from "./features/ui/ConsentScreen";
 import { DoneScreen } from "./features/ui/DoneScreen";
@@ -13,7 +15,10 @@ function App() {
   const screen = useSessionStore((s) => s.screen);
   const language = useSessionStore((s) => s.language);
   const apiClient = useMemo(
-    () => new ApiClient({ baseUrl: API_BASE_URL, getAuthToken }),
+    () => {
+      const options = { baseUrl: API_BASE_URL, getAuthToken };
+      return IS_MOCK_LIVE ? new MockApiClient(options) : new ApiClient(options);
+    },
     [],
   );
 
