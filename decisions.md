@@ -439,3 +439,18 @@
 - **Approved by:** Ahmed (requested); implementation choices self-approved.
 - **Status:** Active. Needs a real-phone pass; chats are per browser and are
   lost if site data is cleared.
+
+## D-017 - Always open the PR and merge it (personal repo)
+- **Date:** 2026-10-05
+- **Context:** Ahmed: "merge it always". Extends D-007, which allowed merging
+  without per-PR sign-off on personal repos.
+- **Decision:** On `ahmedembeddedxx/mend` (a personal repo), finished work goes
+  through a PR into `main` and is merged as soon as CI is green and the PR is
+  conflict-free, without asking again. CI must be green first; a red CI is fixed,
+  not merged over. Organization repos are unchanged: never merge without an
+  explicit go-ahead.
+- **Rationale:** Keeps `main` current and the PR history (with the co-author
+  trailer) flowing; CI is the safety net.
+- **Alternatives considered:** Asking before every merge (rejected by Ahmed).
+- **Approved by:** Ahmed (explicit).
+- **Status:** Active.
