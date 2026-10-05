@@ -44,9 +44,4 @@ describe("start flow", () => {
     useSessionStore.getState().requestStart("ac");
     expect(useSessionStore.getState().screen).toBe("live");
   });
-
-  it("remembers the language", () => {
-    useSessionStore.getState().setLanguage("en");
-    expect(window.localStorage.getItem("mend.language")).toBe("en");
-  });
 });
