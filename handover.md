@@ -7,6 +7,7 @@ Focus is now UI polish. A keyless clickable demo was published as a
 Claude artifact for design review (build: `node apps/web/scripts/build-demo.mjs`).
 
 ## Just Done
+- Latest (D-016): rebrand to Kese AI (UI, manifest, agent persona, docs); saved chats in the browser with sidebar (desktop) / drawer (phone); Home redesigned (big Start, 3 doors, guided-fix scroller, recent chats); chat page replaces Done (transcript, continue, rate, save device); camera now starts before any network call; overlay boxes glide and wires are drawn as segmented, labelled, animated strokes (demo adds handheld drift). 228 web + 147 API tests.
 - Latest (D-015): UI is English only, nicer fonts, voice auto-detects English + Urdu, settings sheet (engine, voice, speech model, vision model) backed by `GET /options` and allow-listed `/session` fields; 147 API + 193 web tests.
 - Backend: ElevenLabs single-use tokens (`/voice/token`, `voice` block in
   `/session`), server-side fallback to Gemini audio, mandatory consent,

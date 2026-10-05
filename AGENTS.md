@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Rules for any coding agent (Claude or otherwise) working in this repo.
+Rules for any coding agent (Claude or otherwise) working in this repo (product name: Kese AI).
 Taken from the Mend technical plan's "Instructions for Claude" and the
 team's own session protocol. These are not suggestions.
 
