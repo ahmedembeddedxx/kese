@@ -19,9 +19,9 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg"],
       manifest: {
-        name: "Mend",
-        short_name: "Mend",
-        description: "Point your phone at it. Mend talks you through the fix.",
+        name: "Kese AI",
+        short_name: "Kese AI",
+        description: "Show it. Ask how. Kese AI talks you through the fix.",
         theme_color: "#0e0d0b",
         background_color: "#0e0d0b",
         display: "standalone",

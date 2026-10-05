@@ -5,7 +5,8 @@
 import { create } from "zustand";
 import type { VoiceProvider } from "../lib/types";
 
-const KEY = "mend.settings.v1";
+const KEY = "kese.settings.v1";
+const LEGACY_KEY = "mend.settings.v1";
 
 export interface Settings {
   voiceProvider: VoiceProvider;
@@ -27,7 +28,7 @@ function str(value: unknown): string | null {
 
 export function loadSettings(): Settings {
   try {
-    const raw = window.localStorage.getItem(KEY);
+    const raw = window.localStorage.getItem(KEY) ?? window.localStorage.getItem(LEGACY_KEY);
     if (!raw) return DEFAULTS;
     const parsed = JSON.parse(raw) as Partial<Record<keyof Settings, unknown>>;
     return {

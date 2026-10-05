@@ -1,7 +1,12 @@
 // A stand-in "camera frame" for demo mode (VITE_MOCK_LIVE=1), so design
 // review shows the UI over something that looks like a repair scene:
 // a ceiling fan seen from below with its motor housing and wiring.
-// Boxes in mockLive.ts are positioned over this drawing. Demo only.
+// SCENE_BOXES / SCENE_WIRES below are the overlay geometry for this drawing.
+// Demo only.
+
+import type { Point1000 } from "../../lib/types";
+import type { HighlightBox, WireOutline } from "../../store/overlayStore";
+import { sampleCubic } from "../overlay/motion";
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 2000" preserveAspectRatio="xMidYMid slice">
 <defs>
@@ -43,3 +48,58 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 2000" pre
 </svg>`;
 
 export const MOCK_SCENE_URI = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+
+/** The drawing as the overlay canvas's backdrop (its svg viewBox size). */
+export const MOCK_SCENE = { src: MOCK_SCENE_URI, width: 1000, height: 2000 };
+
+// Normalised 0-1000 of the scene's width (x) and of its height (y), so
+// x = svgX and y = svgY / 2.
+const toScene = (svgX: number, svgY: number): Point1000 => ({ x: svgX, y: svgY / 2 });
+
+export const SCENE_BOXES: HighlightBox[] = [
+  {
+    // Fan motor hub: circle at svg (500, 760), radius 150.
+    id: "scene-motor",
+    label: "motor",
+    box: { ymin: (760 - 150) / 2, xmin: 350, ymax: (760 + 150) / 2, xmax: 650 },
+    polygon: null,
+    confidence: 0.93,
+  },
+  {
+    // Capacitor body: 340 x 190 centred at svg (500, 1100), spanning y 1010 to 1200.
+    id: "scene-capacitor",
+    label: "capacitor",
+    box: { ymin: 1010 / 2, xmin: 330, ymax: 1200 / 2, xmax: 670 },
+    polygon: null,
+    confidence: 0.9,
+  },
+];
+
+/** A wire path from the svg (relative to translate(500, 1100)) sampled to 14 points. */
+function wirePath(rel: [number, number][]): Point1000[] {
+  const [a, b, c, d] = rel.map(([x, y]) => toScene(500 + x, 1100 + y));
+  return sampleCubic(a, b, c, d, 14);
+}
+
+// Overlay strokes use brighter versions of the drawn wire colours so they
+// read against both the wall and the dark wire.
+export const SCENE_WIRES: WireOutline[] = [
+  {
+    id: "wire-red",
+    label: "red",
+    color: "#ef4444",
+    polyline: wirePath([[-60, 100], [-70, 190], [-30, 230], [-50, 330]]),
+  },
+  {
+    id: "wire-black",
+    label: "black",
+    color: "#9aa0a6",
+    polyline: wirePath([[0, 100], [10, 200], [40, 240], [20, 340]]),
+  },
+  {
+    id: "wire-yellow",
+    label: "yellow",
+    color: "#facc15",
+    polyline: wirePath([[60, 100], [80, 190], [50, 250], [90, 330]]),
+  },
+];

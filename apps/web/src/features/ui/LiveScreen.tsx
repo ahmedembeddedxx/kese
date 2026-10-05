@@ -27,9 +27,11 @@ import type { Point1000 } from "../../lib/types";
 import { captureFrameAsJpegBase64 } from "../../lib/camera";
 import { type Phase, useLiveStore } from "../../store/liveStore";
 import { useOverlayStore } from "../../store/overlayStore";
+import { useChatStore } from "../../store/chatStore";
 import { useSessionStore } from "../../store/sessionStore";
+import { recapForAgent } from "../live/chatRecorder";
 import { IS_MOCK_LIVE, useLiveSession } from "../live/useLiveSession";
-import { MOCK_SCENE_URI } from "../live/mockScene";
+import { MOCK_SCENE } from "../live/mockScene";
 import { MockDemoBar } from "../../components/MockDemoBar";
 import { OverlayCanvas } from "../overlay/OverlayCanvas";
 
@@ -58,15 +60,38 @@ interface LiveScreenProps {
 
 export function LiveScreen({ apiBaseUrl, apiClient }: LiveScreenProps) {
   const { t } = useI18n();
-  const { category, playbookId, finishRepair, goHome } = useSessionStore();
+  const { category, playbookId, finishRepair, goHome, pendingChatId, pendingTitle, beginChat } = useSessionStore();
   const live = useLiveStore();
   const hintEn = useOverlayStore((s) => s.pendingWireHintEn);
   const session = useLiveSession({ apiBaseUrl });
-  const { videoRef, levelRef, start, end } = session;
+  const { videoRef, levelRef, driftRef, start, end } = session;
+
+  // Starts (or restarts, on Retry) the session. Resumes the chosen chat, or
+  // opens a new one the moment something is said, so a session where nobody
+  // speaks leaves nothing behind.
+  function launch() {
+    if (!category) return;
+    const existing = pendingChatId
+      ? useChatStore.getState().chats.find((c) => c.id === pendingChatId)
+      : undefined;
+    if (existing) beginChat(existing.id);
+    void start(category, playbookId, {
+      resolveChatId: () => {
+        if (existing) return existing.id;
+        const active = useSessionStore.getState().activeChatId;
+        if (active) return active;
+        const id = useChatStore
+          .getState()
+          .createChat({ category, playbookId, title: pendingTitle ?? undefined });
+        beginChat(id);
+        return id;
+      },
+      recap: existing ? recapForAgent(existing.messages) : null,
+    });
+  }
 
   useEffect(() => {
-    if (!category) return;
-    void start(category, playbookId);
+    launch();
     return () => {
       end();
       useOverlayStore.getState().clearHighlights();
@@ -117,14 +142,17 @@ export function LiveScreen({ apiBaseUrl, apiClient }: LiveScreenProps) {
         style={{ transform: mirrored ? "scaleX(-1)" : undefined }}
         data-testid="camera-video"
       />
-      {IS_MOCK_LIVE && !live.demoRealCamera && (
-        <img src={MOCK_SCENE_URI} alt="" className="absolute inset-0 h-full w-full object-cover" />
-      )}
       {/* Scrims keep white controls and captions legible over any scene. */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/45 to-transparent" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-black/70 to-transparent" />
 
-      <OverlayCanvas videoRef={videoRef} mirrored={mirrored} onTapPoint={(p) => void handleTapPoint(p)} />
+      <OverlayCanvas
+        videoRef={videoRef}
+        mirrored={mirrored}
+        onTapPoint={(p) => void handleTapPoint(p)}
+        backdrop={IS_MOCK_LIVE && !live.demoRealCamera ? MOCK_SCENE : undefined}
+        driftRef={IS_MOCK_LIVE && !live.demoRealCamera ? driftRef : undefined}
+      />
 
       <div className="absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-3 px-4 pt-[calc(0.75rem+var(--safe-top))]">
         <StepChip />
@@ -213,9 +241,7 @@ export function LiveScreen({ apiBaseUrl, apiClient }: LiveScreenProps) {
             </button>
             <button
               type="button"
-              onClick={() => {
-                if (category) void start(category, playbookId);
-              }}
+              onClick={launch}
               className="min-h-[52px] rounded-2xl bg-live px-6 text-base font-semibold text-live-fg"
             >
               {t("retry")}

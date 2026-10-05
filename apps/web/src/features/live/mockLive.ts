@@ -11,6 +11,7 @@ import type { MutableRefObject } from "react";
 import type { PlaybookDetail } from "../../lib/types";
 import { useLiveStore } from "../../store/liveStore";
 import { useOverlayStore } from "../../store/overlayStore";
+import { SCENE_BOXES, SCENE_WIRES } from "./mockScene";
 
 const DEMO_PLAYBOOK: PlaybookDetail = {
   id: "fan-capacitor-replace",
@@ -82,19 +83,38 @@ export function applyMockMode(mode: MockMode): void {
   }
 }
 
-const DEMO_BOXES = [
-  { id: "a", label: "capacitor", box: { ymin: 470, xmin: 290, ymax: 590, xmax: 710 }, polygon: null, confidence: 0.92 },
-  { id: "b", label: "wires", box: { ymin: 610, xmin: 380, ymax: 780, xmax: 650 }, polygon: null, confidence: 0.88 },
-];
+let wireTimers: number[] = [];
 
-/** Demo bar toggle: sample boxes are only meaningful over the drawn scene. */
+function cancelWireTimers(): void {
+  for (const id of wireTimers) window.clearTimeout(id);
+  wireTimers = [];
+}
+
+/** Demo bar toggle: boxes and wires are only meaningful over the drawn
+ * scene. Wires are added one by one so the draw-in animation plays. */
 export function setMockBoxes(on: boolean): void {
-  useOverlayStore.getState().setBoxes(on ? DEMO_BOXES : []);
+  cancelWireTimers();
+  useOverlayStore.setState({ wires: [] });
+  useOverlayStore.getState().setBoxes(on ? SCENE_BOXES : []);
+  if (!on) return;
+  SCENE_WIRES.forEach((wire, i) => {
+    wireTimers.push(window.setTimeout(() => useOverlayStore.getState().addWire(wire), 400 * (i + 1)));
+  });
+}
+
+const TAU = Math.PI * 2;
+
+/** Smooth handheld-camera motion in scene units: two slow sines per axis. */
+function handheldDrift(seconds: number): { x: number; y: number } {
+  return {
+    x: 9 * Math.sin((TAU * seconds) / 4.3) + 5 * Math.sin((TAU * seconds) / 6.7 + 1.3),
+    y: 6 * Math.sin((TAU * seconds) / 5.1 + 0.7) + 4 * Math.sin((TAU * seconds) / 6.1 + 2.1),
+  };
 }
 
 export function runMockLive(
   levelRef: MutableRefObject<number>,
-  options: { showBoxes: boolean } = { showBoxes: true },
+  options: { showBoxes: boolean; driftRef?: MutableRefObject<{ x: number; y: number }> } = { showBoxes: true },
 ): () => void {
   const params = new URLSearchParams(window.location.search);
   const mode = params.get("mock");
@@ -125,6 +145,16 @@ export function runMockLive(
     }, 4000);
   }
 
+  const driftRef = options.driftRef;
+  if (driftRef && options.showBoxes) {
+    const started = performance.now();
+    timers.push(
+      window.setInterval(() => {
+        driftRef.current = handheldDrift((performance.now() - started) / 1000);
+      }, 33),
+    );
+  }
+
   // A moving level so the pill animates without any audio.
   timers.push(
     window.setInterval(() => {
@@ -138,5 +168,8 @@ export function runMockLive(
   return () => {
     stopCycle();
     for (const id of timers) window.clearInterval(id);
+    cancelWireTimers();
+    useOverlayStore.getState().clearHighlights();
+    if (driftRef) driftRef.current = { x: 0, y: 0 };
   };
 }
