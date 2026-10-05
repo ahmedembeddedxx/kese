@@ -93,14 +93,35 @@ def test_elevenlabs_requested_without_key_falls_back_to_gemini(client, auth_head
     assert fakes["elevenlabs"].calls == []
 
 
-def test_elevenlabs_requested_without_voice_id_falls_back(
+def test_elevenlabs_without_voice_id_uses_first_account_voice(
     client, auth_headers, test_settings, fakes
 ):
     test_settings.elevenlabs_api_key = "test-key-not-real"
     test_settings.elevenlabs_voice_id = None
     body = _post(client, auth_headers, voice_provider="elevenlabs").json()
+    assert body["voice"]["provider"] == "elevenlabs"
+    assert body["voice"]["elevenlabs"]["tts"]["voice_id"] == fakes["elevenlabs"].voices[0].voice_id
+
+
+def test_elevenlabs_without_voice_id_and_failing_list_falls_back(
+    client, auth_headers, test_settings, fakes
+):
+    test_settings.elevenlabs_api_key = "test-key-not-real"
+    test_settings.elevenlabs_voice_id = None
+    fakes["elevenlabs"].list_fail = True
+    body = _post(client, auth_headers, voice_provider="elevenlabs").json()
     assert body["voice"]["provider"] == "gemini"
     assert fakes["elevenlabs"].calls == []
+
+
+def test_elevenlabs_without_voice_id_and_empty_account_falls_back(
+    client, auth_headers, test_settings, fakes
+):
+    test_settings.elevenlabs_api_key = "test-key-not-real"
+    test_settings.elevenlabs_voice_id = None
+    fakes["elevenlabs"].voices = []
+    body = _post(client, auth_headers, voice_provider="elevenlabs").json()
+    assert body["voice"]["provider"] == "gemini"
 
 
 def test_elevenlabs_without_api_key_but_with_voice_id_falls_back(
@@ -184,9 +205,9 @@ _COMMON = {
 
 def test_live_config_elevenlabs_is_text_mode(client, auth_headers, eleven_settings):
     for language in ("ur", "en"):
-        config = _post(
-            client, auth_headers, language=language, voice_provider="elevenlabs"
-        ).json()["live_config"]
+        config = _post(client, auth_headers, language=language, voice_provider="elevenlabs").json()[
+            "live_config"
+        ]
         assert config == {**_COMMON, "responseModalities": ["TEXT"]}
 
 
@@ -224,9 +245,7 @@ def test_token_is_minted_with_same_config_as_returned(client, auth_headers, fake
 # --- system prompt by provider ---------------------------------------------------
 
 
-def test_system_prompt_tts_instruction_only_for_elevenlabs(
-    client, auth_headers, eleven_settings
-):
+def test_system_prompt_tts_instruction_only_for_elevenlabs(client, auth_headers, eleven_settings):
     eleven = _post(client, auth_headers, voice_provider="elevenlabs").json()["system_prompt"]
     gemini = _post(client, auth_headers, voice_provider="gemini").json()["system_prompt"]
     assert "read aloud by a text-to-speech engine" in eleven
@@ -244,3 +263,161 @@ def test_system_prompt_urdu_script_and_brevity(client, auth_headers):
     ]
     assert "Urdu script" in prompt
     assert "brief" in prompt
+
+
+# --- language "auto" ------------------------------------------------------------
+
+
+def test_language_defaults_to_auto(client, auth_headers, fakes):
+    body = client.post(
+        "/session",
+        json={"category": "general", "consent": True, "voice_provider": "gemini"},
+        headers=auth_headers,
+    ).json()
+    assert body["voice"]["language"] == "auto"
+    assert "speechConfig" not in body["live_config"]
+
+
+def test_language_rejects_unknown_value(client, auth_headers):
+    assert _post(client, auth_headers, language="fr").status_code == 422
+
+
+def test_auto_language_elevenlabs_has_no_language_codes(client, auth_headers, eleven_settings):
+    response = _post(client, auth_headers, language="auto", voice_provider="elevenlabs")
+    assert response.status_code == 200
+    voice = response.json()["voice"]
+    assert voice["provider"] == "elevenlabs"
+    assert voice["language"] == "auto"
+    assert voice["elevenlabs"]["stt"]["language_code"] is None
+    assert voice["elevenlabs"]["tts"]["language_code"] is None
+
+
+def test_auto_language_gemini_fallback_has_no_speech_config(client, auth_headers, fakes):
+    body = _post(client, auth_headers, language="auto", voice_provider="gemini").json()
+    assert body["voice"] == {"provider": "gemini", "language": "auto", "elevenlabs": None}
+    config = body["live_config"]
+    assert config["responseModalities"] == ["AUDIO"]
+    assert "speechConfig" not in config
+    # VAD is still configured for audio mode.
+    assert config["realtimeInputConfig"] == {
+        "automaticActivityDetection": {"silenceDurationMs": 700}
+    }
+    assert fakes["gemini"].mint_calls[-1]["live_config"] == config
+
+
+def test_auto_language_prompt(client, auth_headers):
+    prompt = _post(client, auth_headers, language="auto", voice_provider="gemini").json()[
+        "system_prompt"
+    ]
+    assert "language the user speaks" in prompt
+    assert "Roman Urdu" in prompt
+    assert "Urdu script" in prompt
+    assert "Never switch language unless the user does" in prompt
+    # Safety and refusal text is untouched.
+    assert "Never give step-by-step instructions for" in prompt
+    assert "stop the playbook immediately" in prompt
+
+
+# --- selectable models and voice -----------------------------------------------
+
+
+def test_default_models_are_returned_and_locked(client, auth_headers, fakes):
+    body = _post(client, auth_headers, voice_provider="gemini").json()
+    assert body["live_model"] == "gemini-3.8-live"
+    assert fakes["gemini"].mint_calls[-1]["model"] == "gemini-3.8-live"
+
+
+def test_unknown_live_model_is_400(client, auth_headers, fakes):
+    response = _post(client, auth_headers, live_model="gemini-not-real")
+    assert response.status_code == 400
+    assert response.json()["detail"] == "unknown_model"
+    assert fakes["gemini"].mint_calls == []
+
+
+def test_unknown_tts_model_is_400(client, auth_headers, eleven_settings, fakes):
+    response = _post(client, auth_headers, voice_provider="elevenlabs", tts_model="eleven_nope")
+    assert response.status_code == 400
+    assert response.json()["detail"] == "unknown_model"
+    assert fakes["gemini"].mint_calls == []
+    assert fakes["elevenlabs"].calls == []
+
+
+def test_model_validation_comes_after_consent(client, auth_headers):
+    response = _post(client, auth_headers, consent=False, live_model="gemini-not-real")
+    assert response.status_code == 403
+
+
+def test_model_pattern_is_enforced(client, auth_headers):
+    assert _post(client, auth_headers, live_model="a b").status_code == 422
+    assert _post(client, auth_headers, tts_model="x").status_code == 422
+
+
+def test_chosen_models_are_returned_and_locked(client, auth_headers, test_settings, fakes):
+    test_settings.live_model_options_extra = "gemini-alt-live"
+    test_settings.tts_model_options_extra = "eleven_v3"  # duplicate of a built-in: ignored
+    test_settings.elevenlabs_api_key = "test-key-not-real"
+    test_settings.elevenlabs_voice_id = "voice-123"
+    body = _post(
+        client,
+        auth_headers,
+        voice_provider="elevenlabs",
+        live_model="gemini-alt-live",
+        tts_model="eleven_v3",
+    ).json()
+    assert body["live_model"] == "gemini-alt-live"
+    assert fakes["gemini"].mint_calls[-1]["model"] == "gemini-alt-live"
+    assert body["voice"]["elevenlabs"]["tts"]["model_id"] == "eleven_v3"
+
+
+def test_default_tts_model_is_turbo(client, auth_headers, eleven_settings):
+    eleven = _post(client, auth_headers, voice_provider="elevenlabs").json()["voice"]["elevenlabs"]
+    assert eleven["tts"]["model_id"] == "eleven_v4_turbo"
+
+
+def test_chosen_voice_is_used_when_in_account_list(client, auth_headers, eleven_settings, fakes):
+    response = _post(client, auth_headers, voice_provider="elevenlabs", voice_id="voicebbbb0002")
+    assert response.status_code == 200
+    tts = response.json()["voice"]["elevenlabs"]["tts"]
+    assert tts["voice_id"] == "voicebbbb0002"
+    assert fakes["elevenlabs"].list_calls == 1
+
+
+def test_no_voice_id_uses_configured_voice_without_listing(
+    client, auth_headers, eleven_settings, fakes
+):
+    tts = _post(client, auth_headers, voice_provider="elevenlabs").json()["voice"]["elevenlabs"][
+        "tts"
+    ]
+    assert tts["voice_id"] == "voice-123"
+    assert fakes["elevenlabs"].list_calls == 0
+
+
+def test_unknown_voice_is_400(client, auth_headers, eleven_settings, fakes):
+    response = _post(client, auth_headers, voice_provider="elevenlabs", voice_id="notinaccount99")
+    assert response.status_code == 400
+    assert response.json()["detail"] == "unknown_voice"
+    assert fakes["gemini"].mint_calls == []
+    assert fakes["elevenlabs"].calls == []
+
+
+def test_voice_id_pattern_is_enforced(client, auth_headers):
+    assert _post(client, auth_headers, voice_id="short").status_code == 422
+    assert _post(client, auth_headers, voice_id="has space in it").status_code == 422
+
+
+def test_voice_list_failure_falls_back_to_gemini(client, auth_headers, eleven_settings, fakes):
+    fakes["elevenlabs"].list_fail = True
+    response = _post(client, auth_headers, voice_provider="elevenlabs", voice_id="voicebbbb0002")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["voice"]["provider"] == "gemini"
+    assert body["voice"]["elevenlabs"] is None
+    assert body["live_config"]["responseModalities"] == ["AUDIO"]
+    assert "boom" not in response.text
+    assert fakes["elevenlabs"].calls == []
+
+
+def test_voice_id_ignored_for_gemini_provider(client, auth_headers, eleven_settings, fakes):
+    response = _post(client, auth_headers, voice_provider="gemini", voice_id="notinaccount99")
+    assert response.status_code == 200
+    assert fakes["elevenlabs"].list_calls == 0
