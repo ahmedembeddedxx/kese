@@ -10,7 +10,8 @@
     "typecheck": "tsc -b --noEmit",
     "preview": "vite preview",
     "test": "vitest",
-    "test:ci": "vitest run"
+    "test:ci": "vitest run",
+    "dev:demo": "vite --mode demo"
   },
   "dependencies": {
     "@fontsource/noto-naskh-arabic": "^5.3.0",

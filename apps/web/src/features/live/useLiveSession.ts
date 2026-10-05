@@ -484,9 +484,17 @@ export function useLiveSession({ apiBaseUrl }: UseLiveSessionArgs) {
         const live = useLiveStore.getState();
         live.reset();
         flags.connected = true;
-        // Demo mode never touches the camera; it shows a drawn scene instead.
-        live.setCameraState({ canFlip: true, canShareScreen: true, torchSupported: true });
-        stopMockRef.current = runMockLive(levelRef);
+        // Demo mode: use the real camera if the browser allows it (so the UI
+        // can be judged over a live picture), otherwise show a drawn scene.
+        const camera = new CameraController();
+        cameraRef.current = camera;
+        try {
+          await attachCamera(camera, "environment");
+          useLiveStore.getState().setDemoRealCamera(true);
+        } catch {
+          useLiveStore.getState().setCameraState({ canFlip: true, canShareScreen: true, torchSupported: true });
+        }
+        stopMockRef.current = runMockLive(levelRef, { showBoxes: !useLiveStore.getState().demoRealCamera });
         return;
       }
       await begin(category, playbookId, false);

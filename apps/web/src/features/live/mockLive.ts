@@ -82,7 +82,20 @@ export function applyMockMode(mode: MockMode): void {
   }
 }
 
-export function runMockLive(levelRef: MutableRefObject<number>): () => void {
+const DEMO_BOXES = [
+  { id: "a", label: "capacitor", box: { ymin: 470, xmin: 290, ymax: 590, xmax: 710 }, polygon: null, confidence: 0.92 },
+  { id: "b", label: "wires", box: { ymin: 610, xmin: 380, ymax: 780, xmax: 650 }, polygon: null, confidence: 0.88 },
+];
+
+/** Demo bar toggle: sample boxes are only meaningful over the drawn scene. */
+export function setMockBoxes(on: boolean): void {
+  useOverlayStore.getState().setBoxes(on ? DEMO_BOXES : []);
+}
+
+export function runMockLive(
+  levelRef: MutableRefObject<number>,
+  options: { showBoxes: boolean } = { showBoxes: true },
+): () => void {
   const params = new URLSearchParams(window.location.search);
   const mode = params.get("mock");
   const live = useLiveStore.getState();
@@ -94,10 +107,7 @@ export function runMockLive(levelRef: MutableRefObject<number>): () => void {
   live.setPlaybook(DEMO_PLAYBOOK);
   overlay.setStepProgress(2, 5);
   overlay.setCaption("Switch off the fan at the wall.", "پنکھے کو دیوار پر سوئچ سے بند کریں۔");
-  overlay.setBoxes([
-    { id: "a", label: "capacitor", box: { ymin: 470, xmin: 290, ymax: 590, xmax: 710 }, polygon: null, confidence: 0.92 },
-    { id: "b", label: "wires", box: { ymin: 610, xmin: 380, ymax: 780, xmax: 650 }, polygon: null, confidence: 0.88 },
-  ]);
+  setMockBoxes(options.showBoxes);
 
   const known: MockMode[] = ["listening", "thinking", "speaking", "reconnecting", "gate"];
   if (mode && known.includes(mode as MockMode)) {

@@ -113,11 +113,11 @@ export function LiveScreen({ apiBaseUrl, apiClient }: LiveScreenProps) {
         autoPlay
         playsInline
         muted
-        className={`absolute inset-0 h-full w-full object-cover ${IS_MOCK_LIVE ? "hidden" : ""}`}
+        className={`absolute inset-0 h-full w-full object-cover ${IS_MOCK_LIVE && !live.demoRealCamera ? "hidden" : ""}`}
         style={{ transform: mirrored ? "scaleX(-1)" : undefined }}
         data-testid="camera-video"
       />
-      {IS_MOCK_LIVE && (
+      {IS_MOCK_LIVE && !live.demoRealCamera && (
         <img src={MOCK_SCENE_URI} alt="" className="absolute inset-0 h-full w-full object-cover" />
       )}
       {/* Scrims keep white controls and captions legible over any scene. */}

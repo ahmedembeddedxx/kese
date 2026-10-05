@@ -2,7 +2,8 @@
 // the design (VITE_MOCK_LIVE=1). Not rendered in real builds.
 
 import { useState } from "react";
-import { applyMockMode, type MockMode } from "../features/live/mockLive";
+import { applyMockMode, type MockMode, setMockBoxes } from "../features/live/mockLive";
+import { useOverlayStore } from "../store/overlayStore";
 
 const MODES: { id: MockMode; label: string }[] = [
   { id: "listening", label: "Listening" },
@@ -14,6 +15,7 @@ const MODES: { id: MockMode; label: string }[] = [
 
 export function MockDemoBar() {
   const [active, setActive] = useState<MockMode | null>(null);
+  const boxesOn = useOverlayStore((s) => s.boxes.length > 0);
   return (
     <div
       dir="ltr"
@@ -36,6 +38,16 @@ export function MockDemoBar() {
           {m.label}
         </button>
       ))}
+      <button
+        type="button"
+        onClick={() => setMockBoxes(!boxesOn)}
+        aria-pressed={boxesOn}
+        className={`min-h-9 shrink-0 rounded-full px-3 text-xs font-semibold ${
+          boxesOn ? "bg-white text-black" : "bg-black/55 text-white ring-1 ring-white/25"
+        }`}
+      >
+        Sample boxes
+      </button>
     </div>
   );
 }
