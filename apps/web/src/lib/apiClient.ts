@@ -12,6 +12,7 @@ import type {
   EventKind,
   Gate,
   KBSearchResponse,
+  OptionsResponse,
   PlaybookDetail,
   PlaybookSummary,
   SegmentResponse,
@@ -80,9 +81,11 @@ export class ApiClient {
   createSession(args: {
     category: Category;
     playbookId?: string;
-    language?: "en" | "ur";
     deviceHint?: string;
     voiceProvider?: VoiceProvider;
+    voiceId?: string | null;
+    liveModel?: string | null;
+    ttsModel?: string | null;
     /** Must be true: the server refuses to start a session without consent. */
     consent: boolean;
   }): Promise<SessionResponse> {
@@ -91,12 +94,21 @@ export class ApiClient {
       body: JSON.stringify({
         category: args.category,
         playbook_id: args.playbookId,
-        language: args.language ?? "en",
+        // The UI is English only; the voice auto-detects English or Urdu.
+        language: "auto",
         device_hint: args.deviceHint,
         voice_provider: args.voiceProvider ?? "elevenlabs",
+        voice_id: args.voiceId ?? undefined,
+        live_model: args.liveModel ?? undefined,
+        tts_model: args.ttsModel ?? undefined,
         consent: args.consent,
       }),
     });
+  }
+
+  /** Voices and models the settings sheet can offer. */
+  getOptions(): Promise<OptionsResponse> {
+    return this.request<OptionsResponse>("/options");
   }
 
   /** Fresh single-use ElevenLabs token (they are consumed on connect). */

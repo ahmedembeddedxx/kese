@@ -15,7 +15,7 @@ interface SafetyGateSheetProps {
 
 export function SafetyGateSheet({ onConfirm, onNotYet }: SafetyGateSheetProps) {
   const gate = useOverlayStore((s) => s.activeGate);
-  const { t, language } = useI18n();
+  const { t } = useI18n();
   const confirmRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -24,8 +24,8 @@ export function SafetyGateSheet({ onConfirm, onNotYet }: SafetyGateSheetProps) {
 
   if (!gate) return null;
 
-  const prompt = language === "ur" ? gate.promptUr : gate.promptEn;
-  const confirmLabel = language === "ur" ? gate.confirmLabelUr : gate.confirmLabelEn;
+  const prompt = gate.promptEn;
+  const confirmLabel = gate.confirmLabelEn;
 
   return (
     <div className="absolute inset-0 z-30 flex items-end bg-black/45 fade-in">
@@ -43,7 +43,7 @@ export function SafetyGateSheet({ onConfirm, onNotYet }: SafetyGateSheetProps) {
             {t("gateTitle")}
           </h2>
         </div>
-        <p id="gate-prompt" lang={language} className="mb-5 text-xl leading-relaxed text-white">
+        <p id="gate-prompt" className="mb-5 text-xl leading-relaxed text-white">
           {prompt}
         </p>
         <div className="grid grid-cols-2 gap-3">

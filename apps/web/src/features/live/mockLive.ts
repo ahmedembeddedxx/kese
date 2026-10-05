@@ -58,23 +58,23 @@ export function applyMockMode(mode: MockMode): void {
   overlay.confirmGate();
   if (mode === "gate") {
     live.setPhase("speaking");
-    live.setUserCaption("یہ پنکھا گھوم نہیں رہا");
-    live.setAgentCaption("سب سے پہلے پنکھے کو دیوار کے سوئچ سے بند کریں۔");
+    live.setUserCaption("The fan is not spinning.");
+    live.setAgentCaption("First, switch the fan off at the wall switch.");
     overlay.openGate({
       checkId: "power_off_confirmed",
       promptEn: "Switch off the breaker for this fan.",
-      promptUr: "اس پنکھے کا بریکر بند کر دیں۔",
+      promptUr: "Switch off the breaker for this fan.",
       confirmLabelEn: "Power is off",
-      confirmLabelUr: "بجلی بند ہے",
+      confirmLabelUr: "Power is off",
     });
     return;
   }
   live.setPhase(mode);
   if (mode === "speaking") {
-    live.setUserCaption("یہ پنکھا گھوم نہیں رہا");
-    live.setAgentCaption("سب سے پہلے پنکھے کو دیوار کے سوئچ سے بند کریں۔");
+    live.setUserCaption("The fan is not spinning.");
+    live.setAgentCaption("First, switch the fan off at the wall switch.");
   } else if (mode === "thinking") {
-    live.setUserCaption("یہ پنکھا گھوم نہیں رہا");
+    live.setUserCaption("The fan is not spinning.");
     live.setAgentCaption("");
   } else {
     live.setUserCaption("");
@@ -106,7 +106,7 @@ export function runMockLive(
   live.setVoice("elevenlabs", false);
   live.setPlaybook(DEMO_PLAYBOOK);
   overlay.setStepProgress(2, 5);
-  overlay.setCaption("Switch off the fan at the wall.", "پنکھے کو دیوار پر سوئچ سے بند کریں۔");
+  overlay.setCaption("Switch off the fan at the wall.", "Switch off the fan at the wall.");
   setMockBoxes(options.showBoxes);
 
   const known: MockMode[] = ["listening", "thinking", "speaking", "reconnecting", "gate"];
@@ -120,8 +120,8 @@ export function runMockLive(
       step = (step + 1) % order.length;
       const phase = order[step];
       live.setPhase(phase);
-      live.setUserCaption(phase === "listening" ? "" : "یہ پنکھا گھوم نہیں رہا");
-      live.setAgentCaption(phase === "speaking" ? "سب سے پہلے پنکھے کو دیوار کے سوئچ سے بند کریں۔" : "");
+      live.setUserCaption(phase === "listening" ? "" : "The fan is not spinning.");
+      live.setAgentCaption(phase === "speaking" ? "First, switch the fan off at the wall switch." : "");
     }, 4000);
   }
 

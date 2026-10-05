@@ -3,7 +3,7 @@
 // be clicked through with no backend. Never used outside demo builds.
 
 import { ApiClient } from "./apiClient";
-import type { Device, PlaybookSummary } from "./types";
+import type { Device, OptionsResponse, PlaybookSummary } from "./types";
 
 const DEMO_PLAYBOOKS: PlaybookSummary[] = [
   { id: "fan-capacitor-replace", category: "electrical", title: "Replace a fan capacitor", title_ur: "پنکھے کا کیپیسیٹر بدلیں", risk: "high" },
@@ -15,7 +15,26 @@ const DEMO_PLAYBOOKS: PlaybookSummary[] = [
   { id: "car-oil-check", category: "car", title: "Check the engine oil", title_ur: "انجن آئل چیک کریں", risk: "low" },
 ];
 
+const DEMO_OPTIONS: OptionsResponse = {
+  voices: [
+    { voice_id: "demovoice0001", name: "Aria", category: "premade", description: "Warm, calm, clear", preview_url: null },
+    { voice_id: "demovoice0002", name: "Roger", category: "premade", description: "Steady and friendly", preview_url: null },
+    { voice_id: "demovoice0003", name: "Sarah", category: "premade", description: "Bright and upbeat", preview_url: null },
+  ],
+  live_models: [{ id: "gemini-live-demo", label: "Gemini Live (default)" }],
+  tts_models: [
+    { id: "eleven_v4_turbo", label: "Turbo (fastest)" },
+    { id: "eleven_v3", label: "v3 (most expressive)" },
+  ],
+  defaults: { voice_id: "demovoice0001", live_model: "gemini-live-demo", tts_model: "eleven_v4_turbo", voice_provider: "elevenlabs" },
+  elevenlabs_available: true,
+};
+
 export class MockApiClient extends ApiClient {
+  override async getOptions(): Promise<OptionsResponse> {
+    return DEMO_OPTIONS;
+  }
+
   override async listPlaybooks(): Promise<PlaybookSummary[]> {
     return DEMO_PLAYBOOKS;
   }

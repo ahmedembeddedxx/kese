@@ -10,7 +10,8 @@ import { WS_OPEN, defaultWebSocketFactory } from "./types";
 export interface ScribeConfig {
   url: string;
   modelId: string;
-  languageCode: string;
+  /** Omit for automatic language detection (English + Urdu). */
+  languageCode?: string | null;
   audioFormat: "pcm_16000";
   commitStrategy: "vad" | "manual";
   vadSilenceThresholdSecs?: number;
@@ -183,7 +184,7 @@ export class ScribeClient {
     params.set("model_id", this.config.modelId);
     params.set("token", token);
     params.set("audio_format", this.config.audioFormat);
-    params.set("language_code", this.config.languageCode);
+    if (this.config.languageCode) params.set("language_code", this.config.languageCode);
     params.set("commit_strategy", this.config.commitStrategy);
     if (this.config.vadSilenceThresholdSecs !== undefined) {
       params.set("vad_silence_threshold_secs", String(this.config.vadSilenceThresholdSecs));

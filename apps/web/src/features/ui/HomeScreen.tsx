@@ -3,14 +3,14 @@
 // guided repairs. Every route ends in the same live screen.
 
 import { useState } from "react";
-import { LanguageToggle } from "../../components/LanguageToggle";
-import { BoltIcon, CarIcon, MicIcon, SnowflakeIcon, SparkIcon } from "../../components/icons";
+import { BoltIcon, CarIcon, MicIcon, SettingsIcon, SnowflakeIcon, SparkIcon } from "../../components/icons";
 import { useI18n } from "../../i18n/useI18n";
 import type { StringKey } from "../../i18n/strings";
 import type { ApiClient } from "../../lib/apiClient";
 import type { Category } from "../../lib/types";
 import { useSessionStore } from "../../store/sessionStore";
 import { PlaybookSheet } from "./PlaybookSheet";
+import { SettingsSheet } from "./SettingsSheet";
 
 const DOORS: { category: Category; key: StringKey; Icon: typeof BoltIcon }[] = [
   { category: "electrical", key: "categoryElectrical", Icon: BoltIcon },
@@ -39,24 +39,31 @@ interface HomeScreenProps {
 }
 
 export function HomeScreen({ apiClient }: HomeScreenProps) {
-  const { t, dir, language } = useI18n();
+  const { t } = useI18n();
   const requestStart = useSessionStore((s) => s.requestStart);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
     <main
-      dir={dir}
-      lang={language}
       className="mx-auto flex min-h-dvh max-w-md flex-col px-6 pt-[calc(1rem+var(--safe-top))] pb-[calc(1.5rem+var(--safe-bottom))]"
     >
       <header className="flex items-center justify-between">
-        <span className="text-2xl font-extrabold tracking-tight">{t("appName")}</span>
-        <LanguageToggle />
+        <span className="font-display text-3xl font-extrabold tracking-tight">{t("appName")}</span>
+        <button
+          type="button"
+          onClick={() => setSettingsOpen(true)}
+          aria-label={t("settings")}
+          data-testid="open-settings"
+          className="grid size-12 place-items-center rounded-full bg-raised ring-1 ring-hairline active:scale-95"
+        >
+          <SettingsIcon size={22} />
+        </button>
       </header>
 
       <section className="flex flex-1 flex-col items-center justify-center gap-6 py-8 text-center">
         <Viewfinder />
-        <h1 className="urdu-body max-w-xs text-3xl font-bold leading-snug">{t("tagline")}</h1>
+        <h1 className="font-display max-w-xs text-4xl font-bold leading-[1.1] tracking-tight">{t("tagline")}</h1>
       </section>
 
       <section className="flex flex-col gap-4">
@@ -98,6 +105,8 @@ export function HomeScreen({ apiClient }: HomeScreenProps) {
           {t("chooseRepair")}
         </button>
       </section>
+
+      {settingsOpen && <SettingsSheet apiClient={apiClient} onClose={() => setSettingsOpen(false)} />}
 
       {sheetOpen && (
         <PlaybookSheet

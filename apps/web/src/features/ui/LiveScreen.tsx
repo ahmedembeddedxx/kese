@@ -46,6 +46,7 @@ const ERROR_KEY = {
   camera: "errorCamera",
   mic: "errorMic",
   consent: "errorConsent",
+  option: "errorOption",
   busy: "errorBusy",
   generic: "errorGeneric",
 } as const satisfies Record<string, StringKey>;
@@ -56,7 +57,7 @@ interface LiveScreenProps {
 }
 
 export function LiveScreen({ apiBaseUrl, apiClient }: LiveScreenProps) {
-  const { t, dir } = useI18n();
+  const { t } = useI18n();
   const { category, playbookId, finishRepair, goHome } = useSessionStore();
   const live = useLiveStore();
   const hintEn = useOverlayStore((s) => s.pendingWireHintEn);
@@ -104,7 +105,6 @@ export function LiveScreen({ apiBaseUrl, apiClient }: LiveScreenProps) {
 
   return (
     <div
-      dir={dir}
       className="fixed inset-0 overflow-hidden bg-black text-white"
       data-testid="live-screen"
     >
@@ -157,7 +157,7 @@ export function LiveScreen({ apiBaseUrl, apiClient }: LiveScreenProps) {
         <p className="text-center text-sm font-medium text-white/80" aria-hidden="true">
           {phaseLabel}
         </p>
-        {/* Media-style controls keep a fixed left-to-right order in both languages. */}
+        {/* Media-style controls keep one fixed order. */}
         <div dir="ltr" className="flex items-center gap-2">
           <GlassButton
             label={t("flipCamera")}

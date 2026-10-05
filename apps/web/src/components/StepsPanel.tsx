@@ -23,7 +23,7 @@ export function StepChip() {
 }
 
 export function StepsPanel() {
-  const { t, language } = useI18n();
+  const { t } = useI18n();
   const playbook = useLiveStore((s) => s.playbook);
   const stepIndex = useOverlayStore((s) => s.stepIndex);
   if (!playbook) return null;
@@ -35,7 +35,7 @@ export function StepsPanel() {
       aria-label={t("stepsTitle")}
     >
       <h2 className="px-5 pt-5 pb-3 text-sm font-semibold tracking-wide text-white/70">
-        {language === "ur" ? playbook.title_ur : playbook.title}
+        {playbook.title}
       </h2>
       <ol className="flex-1 space-y-1 overflow-y-auto px-3 pb-4">
         {playbook.steps.map((step, i) => {
@@ -55,10 +55,9 @@ export function StepsPanel() {
                 {done ? <CheckIcon size={14} strokeWidth={3} /> : i + 1}
               </span>
               <span
-                lang={language}
                 className={`text-[15px] leading-7 ${current ? "text-white" : done ? "text-white/55" : "text-white/75"}`}
               >
-                {language === "ur" ? step.say_ur : step.say}
+                {step.say}
               </span>
             </li>
           );

@@ -31,7 +31,7 @@ interface PlaybookSheetProps {
 }
 
 export function PlaybookSheet({ apiClient, onPick, onClose }: PlaybookSheetProps) {
-  const { t, language, dir } = useI18n();
+  const { t } = useI18n();
   const [items, setItems] = useState<PlaybookSummary[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -68,7 +68,6 @@ export function PlaybookSheet({ apiClient, onPick, onClose }: PlaybookSheetProps
         role="dialog"
         aria-modal="true"
         aria-labelledby="sheet-title"
-        dir={dir}
         data-testid="playbook-sheet"
         onClick={(e) => e.stopPropagation()}
         className="sheet-in flex max-h-[88dvh] w-full max-w-lg flex-col rounded-t-[28px] bg-bg shadow-2xl sm:mb-8 sm:rounded-[28px]"
@@ -129,11 +128,11 @@ export function PlaybookSheet({ apiClient, onPick, onClose }: PlaybookSheetProps
                   onClick={() => onPick(p)}
                   className="flex min-h-16 w-full items-center gap-3 rounded-2xl px-3 py-2 text-start active:bg-raised"
                 >
-                  <span lang={language} className="flex-1 text-lg leading-8">
-                    {language === "ur" ? p.title_ur : p.title}
+                  <span className="flex-1 text-lg leading-8">
+                    {p.title}
                   </span>
                   <span className={`text-xs font-semibold ${RISK_CLASS[p.risk]}`}>{t(RISK_KEY[p.risk])}</span>
-                  <ChevronIcon size={18} className="text-muted rtl:rotate-180" />
+                  <ChevronIcon size={18} className="text-muted" />
                 </button>
               </li>
             ))}

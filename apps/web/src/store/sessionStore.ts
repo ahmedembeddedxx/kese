@@ -3,12 +3,10 @@
 // switching categories doesn't need to touch overlay state directly.
 
 import { create } from "zustand";
-import type { Language } from "../i18n/strings";
 import type { Category, SessionResponse } from "../lib/types";
 
 export type Screen = "home" | "consent" | "live" | "done";
 
-const LANGUAGE_KEY = "mend.language";
 const CONSENT_KEY = "mend.consent.v1";
 
 function readStored(key: string): string | null {
@@ -27,11 +25,6 @@ function writeStored(key: string, value: string): void {
   }
 }
 
-/** Urdu is the product's primary language; English is opt-in. */
-export function initialLanguage(): Language {
-  return readStored(LANGUAGE_KEY) === "en" ? "en" : "ur";
-}
-
 export interface PendingStart {
   category: Category;
   playbookId: string | null;
@@ -41,7 +34,6 @@ interface SessionState {
   screen: Screen;
   category: Category | null;
   playbookId: string | null;
-  language: Language;
   consented: boolean;
   session: SessionResponse | null;
   sessionId: string | null;
@@ -53,7 +45,6 @@ interface SessionState {
   requestStart: (category: Category, playbookId?: string) => void;
   acceptConsent: () => void;
   declineConsent: () => void;
-  setLanguage: (language: Language) => void;
   setSession: (session: SessionResponse, sessionId: string) => void;
   finishRepair: () => void;
 }
@@ -62,7 +53,6 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   screen: "home",
   category: null,
   playbookId: null,
-  language: initialLanguage(),
   consented: readStored(CONSENT_KEY) === "1",
   session: null,
   sessionId: null,
@@ -80,10 +70,6 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     set({ consented: true, screen: "live" });
   },
   declineConsent: () => set({ screen: "home" }),
-  setLanguage: (language) => {
-    writeStored(LANGUAGE_KEY, language);
-    set({ language });
-  },
   setSession: (session, sessionId) => set({ session, sessionId }),
   finishRepair: () => set({ screen: "done", finishedKind: get().category }),
 }));

@@ -19,7 +19,7 @@ export type Phase =
 export type CameraSource = "environment" | "user" | "screen";
 
 export interface LiveError {
-  kind: "camera" | "mic" | "consent" | "busy" | "generic";
+  kind: "camera" | "mic" | "consent" | "option" | "busy" | "generic";
 }
 
 interface LiveState {

@@ -31,6 +31,7 @@ import { TtsStream } from "../../lib/voice/ttsStream";
 import { useLiveStore, type LiveError } from "../../store/liveStore";
 import { useOverlayStore } from "../../store/overlayStore";
 import { useSessionStore } from "../../store/sessionStore";
+import { useSettingsStore } from "../../store/settingsStore";
 import { type LiveSessionHandle, openLiveSession } from "./geminiLiveClient";
 import { runMockLive } from "./mockLive";
 import { derivePhase } from "./phase";
@@ -64,6 +65,7 @@ function classifyError(error: unknown): LiveError {
   }
   if (error instanceof ApiError) {
     if (error.status === 403) return { kind: "consent" };
+    if (error.status === 400) return { kind: "option" };
     if (error.status === 429) return { kind: "busy" };
   }
   if (error instanceof DOMException && error.name === "NotAllowedError") return { kind: "mic" };
@@ -145,7 +147,7 @@ export function useLiveSession({ apiBaseUrl }: UseLiveSessionArgs) {
       const generation = ++flags.generation;
       const stale = () => generation !== flags.generation || flags.ended;
       const live = useLiveStore.getState();
-      const language = useSessionStore.getState().language;
+      const settings = useSettingsStore.getState();
       const apiClient = apiClientRef.current;
 
       live.reset();
@@ -160,8 +162,10 @@ export function useLiveSession({ apiBaseUrl }: UseLiveSessionArgs) {
           apiClient.createSession({
             category,
             playbookId: playbookId ?? undefined,
-            language,
-            voiceProvider: forceGemini ? "gemini" : "elevenlabs",
+            voiceProvider: forceGemini ? "gemini" : settings.voiceProvider,
+            voiceId: settings.voiceId,
+            liveModel: settings.liveModel,
+            ttsModel: settings.ttsModel,
             consent: useSessionStore.getState().consented,
           }),
           apiClient.getGates(),

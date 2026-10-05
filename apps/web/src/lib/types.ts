@@ -44,7 +44,8 @@ export interface ElevenLabsSTTSession {
   url: string;
   token: string;
   model_id: string;
-  language_code: string;
+  /** null = auto-detect (English + Urdu). */
+  language_code: string | null;
   audio_format: string;
   commit_strategy: string;
   vad_silence_threshold_secs: number;
@@ -56,12 +57,12 @@ export interface ElevenLabsTTSSession {
   model_id: string;
   voice_id: string;
   output_format: string;
-  language_code: string;
+  language_code: string | null;
 }
 
 export interface SessionVoice {
   provider: VoiceProvider;
-  language: "ur" | "en";
+  language: "auto" | "ur" | "en";
   elevenlabs: {
     stt: ElevenLabsSTTSession;
     tts: ElevenLabsTTSSession;
@@ -155,4 +156,30 @@ export interface PlaybookDetail extends PlaybookSummary {
   steps: PlaybookStep[];
   stop_if: string[];
   stop_if_ur: string[];
+}
+
+export interface VoiceOption {
+  voice_id: string;
+  name: string;
+  category: string | null;
+  description: string | null;
+  preview_url: string | null;
+}
+
+export interface ModelOption {
+  id: string;
+  label: string;
+}
+
+export interface OptionsResponse {
+  voices: VoiceOption[];
+  live_models: ModelOption[];
+  tts_models: ModelOption[];
+  defaults: {
+    voice_id: string | null;
+    live_model: string;
+    tts_model: string;
+    voice_provider: VoiceProvider;
+  };
+  elevenlabs_available: boolean;
 }

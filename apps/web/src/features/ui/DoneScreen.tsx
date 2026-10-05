@@ -12,7 +12,7 @@ interface DoneScreenProps {
 }
 
 export function DoneScreen({ apiClient }: DoneScreenProps) {
-  const { t, dir, language } = useI18n();
+  const { t } = useI18n();
   const { category, playbookId, goHome, sessionId } = useSessionStore();
   const [feedback, setFeedback] = useState<"up" | "down" | null>(null);
   const [nickname, setNickname] = useState("");
@@ -47,8 +47,6 @@ export function DoneScreen({ apiClient }: DoneScreenProps) {
 
   return (
     <main
-      dir={dir}
-      lang={language}
       className="mx-auto flex min-h-dvh max-w-md flex-col px-6 pt-[calc(2rem+var(--safe-top))] pb-[calc(1.5rem+var(--safe-bottom))]"
     >
       <div className="flex flex-1 flex-col items-center justify-center gap-5 text-center">
@@ -56,7 +54,7 @@ export function DoneScreen({ apiClient }: DoneScreenProps) {
           <CheckIcon size={42} strokeWidth={2.4} />
         </div>
         <h1 className="text-3xl font-bold">{t("doneTitle")}</h1>
-        <p className="urdu-body text-lg text-muted">{t("doneBody")}</p>
+        <p className="text-lg text-muted">{t("doneBody")}</p>
 
         <div className="flex gap-3">
           {(["up", "down"] as const).map((v) => (
