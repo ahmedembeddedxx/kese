@@ -88,6 +88,7 @@ improvising. Every risky step is gated behind an on-screen confirmation
 - Browser ElevenLabs clients (Scribe STT, TTS stream) → `apps/web/src/lib/voice/`
 - All UI copy (Urdu + English) → `apps/web/src/i18n/strings.ts`
 - Design tokens, glass, Urdu fonts, reduced-motion rules → `apps/web/src/index.css`
+- Keyless clickable demo of the whole UI (drawn camera scene, canned data, state chips) → `cd apps/web && node scripts/build-demo.mjs` writes `dist-demo/demo.html`; pieces: `features/live/mockLive.ts`, `mockScene.ts`, `components/MockDemoBar.tsx`, `lib/mockApi.ts` (all active only with `VITE_MOCK_LIVE=1`)
 - Live WebSocket session orchestration (camera/mic, not yet live-tested) → `apps/web/src/features/live/useLiveSession.ts`
 - Gemini Live SDK wrapper (not yet live-tested) → `apps/web/src/features/live/geminiLiveClient.ts`
 - Tool-call dispatcher (pure, unit-tested) → `apps/web/src/features/live/toolHandlers.ts`

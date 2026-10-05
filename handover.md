@@ -2,8 +2,9 @@
 _Overwritten every turn. If you're reading this at session start, this is the state you're resuming from._
 
 ## Current Task
-UI rebuild "match Gemini" plus ElevenLabs Urdu voice, ready for the
-hackathon demo. Done and Docker-verified; PR into `main` is the last step.
+UI rebuild "match Gemini" plus ElevenLabs Urdu voice is merged (PR #2).
+Focus is now UI polish. A keyless clickable demo was published as a
+Claude artifact for design review (build: `node apps/web/scripts/build-demo.mjs`).
 
 ## Just Done
 - Backend: ElevenLabs single-use tokens (`/voice/token`, `voice` block in
@@ -23,7 +24,7 @@ hackathon demo. Done and Docker-verified; PR into `main` is the last step.
   D-012). Decisions D-012 to D-014 logged.
 
 ## Next Step
-Merge the PR (personal repo, D-007 allows it). Then, with real keys:
+Collect Ahmed's UI feedback on the demo and iterate. Then, with real keys:
 1. Put `MEND_ELEVENLABS_API_KEY`, `MEND_ELEVENLABS_VOICE_ID` (an Urdu
    voice), `MEND_GEMINI_API_KEY`, `MEND_REPLICATE_API_TOKEN` in
    `services/api/.env`, run the stack, test on a real phone.
