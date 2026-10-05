@@ -9,7 +9,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.config import get_settings
 from app.rate_limit import limiter
-from app.routers import detect, devices, events, gates, kb, playbooks, segment, session
+from app.routers import detect, devices, events, gates, kb, playbooks, segment, session, voice
 
 settings = get_settings()
 
@@ -58,6 +58,7 @@ def create_app() -> FastAPI:
     app.include_router(events.router)
     app.include_router(playbooks.router)
     app.include_router(gates.router)
+    app.include_router(voice.router)
 
     @app.get("/healthz")
     def healthz() -> dict:

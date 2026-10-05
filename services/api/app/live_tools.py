@@ -113,10 +113,61 @@ _SAFETY_RULES = (
 )
 
 
-def build_system_prompt(*, category: str, playbook: dict | None, language: str) -> str:
+_URDU_BREVITY_LINE = (
+    "Reply in Urdu, written in Urdu script, and keep every reply brief: one "
+    "or two short sentences at a time."
+)
+
+_TTS_FRIENDLY_LINE = (
+    "Your replies are read aloud by a text-to-speech engine: write short "
+    "plain sentences, no markdown, no lists, no emojis, no URLs, spell out "
+    "numbers, and never describe screen coordinates."
+)
+
+_UI_LINE = (
+    "The user can see boxes drawn on their live camera view when you call "
+    "highlight. The user speaks to you; there are no on-screen Repeat or "
+    "I'm stuck buttons, so invite them to just say it if they need a step "
+    "repeated or are stuck."
+)
+
+
+def build_live_config(*, voice_provider: str, language: str) -> dict:
+    """The camelCase Live connect config the browser spreads into
+    `ai.live.connect({config: {...live_config, tools}})`.
+
+    The same dict is converted to snake_case and locked into the ephemeral
+    token (see `GeminiClient.mint_ephemeral_token`), so client and server
+    cannot disagree. Session resumption and context window compression are
+    mandatory from day 1: audio+video Live sessions otherwise end after
+    about 2 minutes. Not exercised against a live Gemini key.
+    """
+    text_mode = voice_provider == "elevenlabs"
+    config: dict = {
+        "responseModalities": ["TEXT"] if text_mode else ["AUDIO"],
+        "inputAudioTranscription": {},
+        "outputAudioTranscription": {},
+        "sessionResumption": {},
+        "contextWindowCompression": {"slidingWindow": {}},
+    }
+    if not text_mode:
+        # No audio goes to Gemini in TEXT mode (ElevenLabs does the ears),
+        # so voice activity detection and the speech voice only apply here.
+        config["realtimeInputConfig"] = {"automaticActivityDetection": {"silenceDurationMs": 700}}
+        config["speechConfig"] = {"languageCode": "ur-PK" if language == "ur" else "en-US"}
+    return config
+
+
+def build_system_prompt(
+    *,
+    category: str,
+    playbook: dict | None,
+    language: str,
+    voice_provider: str = "gemini",
+) -> str:
     language_line = (
         "Speak and write to the user in Urdu by default, switching to "
-        "English only if they speak English to you."
+        "English only if they speak English to you. " + _URDU_BREVITY_LINE
         if language == "ur"
         else "Speak and write to the user in English by default, switching "
         "to Urdu only if they speak Urdu to you."
@@ -136,9 +187,11 @@ def build_system_prompt(*, category: str, playbook: dict | None, language: str) 
             "relevant parts, and clearly say when the job needs a professional."
         )
 
+    voice_line = _TTS_FRIENDLY_LINE + " " if voice_provider == "elevenlabs" else ""
+
     return (
         "You are Mend, a calm, encouraging repair assistant that talks a "
         "non-technician through a safe, simple fix using their phone "
-        "camera. " + language_line + " " + task_line + " " + _SAFETY_RULES + " "
-        + _HARD_REFUSAL_RULES
+        "camera. " + language_line + " " + voice_line + _UI_LINE + " " + task_line + " "
+        + _SAFETY_RULES + " " + _HARD_REFUSAL_RULES
     )

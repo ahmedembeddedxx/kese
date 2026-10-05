@@ -9,24 +9,53 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from app.config import get_settings
+from fastapi import Depends
+
+from app.config import Settings, get_settings
 from app.services.device_store import DeviceStore
+from app.services.elevenlabs_client import ElevenLabsClient, FakeElevenLabsClient
 from app.services.event_store import EventStore
+from app.services.fake_clients import FakeGeminiClient, FakeReplicateClient
 from app.services.gemini_client import GeminiClient
 from app.services.kb_store import KBStore
 from app.services.replicate_client import ReplicateClient
 
 
 @lru_cache
-def get_gemini_client() -> GeminiClient:
-    settings = get_settings()
-    return GeminiClient(api_key=settings.gemini_api_key)
+def _real_gemini_client(api_key: str | None) -> GeminiClient:
+    return GeminiClient(api_key=api_key)
 
 
 @lru_cache
-def get_replicate_client() -> ReplicateClient:
-    settings = get_settings()
-    return ReplicateClient(api_token=settings.replicate_api_token)
+def _real_replicate_client(api_token: str | None) -> ReplicateClient:
+    return ReplicateClient(api_token=api_token)
+
+
+@lru_cache
+def _real_elevenlabs_client(api_key: str | None) -> ElevenLabsClient:
+    return ElevenLabsClient(api_key=api_key)
+
+
+# Each provider returns the deterministic fake when `settings.dev_fakes` is
+# set (which Settings refuses in production), else the real client.
+
+
+def get_gemini_client(settings: Settings = Depends(get_settings)):
+    if settings.dev_fakes:
+        return FakeGeminiClient()
+    return _real_gemini_client(settings.gemini_api_key)
+
+
+def get_replicate_client(settings: Settings = Depends(get_settings)):
+    if settings.dev_fakes:
+        return FakeReplicateClient()
+    return _real_replicate_client(settings.replicate_api_token)
+
+
+def get_elevenlabs_client(settings: Settings = Depends(get_settings)):
+    if settings.dev_fakes:
+        return FakeElevenLabsClient()
+    return _real_elevenlabs_client(settings.elevenlabs_api_key)
 
 
 @lru_cache
