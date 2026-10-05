@@ -55,3 +55,80 @@ export const HIGHLIGHT_PALETTE = [
 export function colorForIndex(index: number): string {
   return HIGHLIGHT_PALETTE[index % HIGHLIGHT_PALETTE.length];
 }
+
+// ---------------------------------------------------------------------
+// Object-fit: cover mapping. The camera <video> fills the whole screen
+// with `object-fit: cover`, so the video frame is scaled up and its
+// overflow is cropped. Detection coordinates are normalised to the FULL
+// frame, so they must be mapped through the same scale + crop offset, or
+// boxes drift away from the parts on any screen whose aspect ratio
+// differs from the camera's (which is nearly all of them).
+// ---------------------------------------------------------------------
+
+export interface FrameFit {
+  /** On-screen size of the container the video fills. */
+  containerWidth: number;
+  containerHeight: number;
+  /** Intrinsic size of the video frame. */
+  videoWidth: number;
+  videoHeight: number;
+  /** True for a front camera shown mirrored (CSS scaleX(-1)). */
+  mirrored: boolean;
+}
+
+export interface CoverTransform {
+  scale: number;
+  offsetX: number;
+  offsetY: number;
+  displayWidth: number;
+  displayHeight: number;
+}
+
+/** Scale and (negative) offsets that `object-fit: cover` applies. */
+export function coverTransform(fit: FrameFit): CoverTransform {
+  const { containerWidth: cw, containerHeight: ch, videoWidth: vw, videoHeight: vh } = fit;
+  if (!cw || !ch || !vw || !vh) {
+    return { scale: 1, offsetX: 0, offsetY: 0, displayWidth: cw, displayHeight: ch };
+  }
+  const scale = Math.max(cw / vw, ch / vh);
+  const displayWidth = vw * scale;
+  const displayHeight = vh * scale;
+  return {
+    scale,
+    offsetX: (cw - displayWidth) / 2,
+    offsetY: (ch - displayHeight) / 2,
+    displayWidth,
+    displayHeight,
+  };
+}
+
+/** Map one 0-1000 normalised point on the frame to container pixels. */
+export function framePointToScreen(point: Point1000, fit: FrameFit): PixelPoint {
+  const t = coverTransform(fit);
+  const x = t.offsetX + (point.x / 1000) * t.displayWidth;
+  const y = t.offsetY + (point.y / 1000) * t.displayHeight;
+  return { x: fit.mirrored ? fit.containerWidth - x : x, y };
+}
+
+/** Map a 0-1000 box on the frame to a container-pixel rect (mirror-safe). */
+export function frameBoxToScreen(box: Box2D, fit: FrameFit): PixelRect {
+  const a = framePointToScreen({ x: box.xmin, y: box.ymin }, fit);
+  const b = framePointToScreen({ x: box.xmax, y: box.ymax }, fit);
+  return {
+    x: Math.min(a.x, b.x),
+    y: Math.min(a.y, b.y),
+    width: Math.abs(b.x - a.x),
+    height: Math.abs(b.y - a.y),
+  };
+}
+
+/** Inverse of framePointToScreen: a tap on screen to a 0-1000 frame point. */
+export function screenPointToFrame(x: number, y: number, fit: FrameFit): Point1000 {
+  const t = coverTransform(fit);
+  const unmirroredX = fit.mirrored ? fit.containerWidth - x : x;
+  const clamp = (n: number) => Math.min(1000, Math.max(0, n));
+  return {
+    x: clamp(((unmirroredX - t.offsetX) / t.displayWidth) * 1000),
+    y: clamp(((y - t.offsetY) / t.displayHeight) * 1000),
+  };
+}

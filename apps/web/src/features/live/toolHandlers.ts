@@ -98,7 +98,9 @@ export function createToolDispatcher(deps: ToolHandlerDeps) {
       confirmLabelEn: gate.en,
       confirmLabelUr: gate.ur,
     });
-    return { ok: true };
+    // The user must tap on screen. Their decision is sent back as a text
+    // turn (see useLiveSession), so the agent must wait for it.
+    return { ok: true, status: "waiting_for_user_tap" };
   }
 
   async function lookupKb(args: { query: string; category?: string }): Promise<ToolResult> {

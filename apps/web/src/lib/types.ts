@@ -38,6 +38,37 @@ export interface SegmentResponse {
   latency_ms: number;
 }
 
+export type VoiceProvider = "gemini" | "elevenlabs";
+
+export interface ElevenLabsSTTSession {
+  url: string;
+  token: string;
+  model_id: string;
+  language_code: string;
+  audio_format: string;
+  commit_strategy: string;
+  vad_silence_threshold_secs: number;
+}
+
+export interface ElevenLabsTTSSession {
+  url: string;
+  token: string;
+  model_id: string;
+  voice_id: string;
+  output_format: string;
+  language_code: string;
+}
+
+export interface SessionVoice {
+  provider: VoiceProvider;
+  language: "ur" | "en";
+  elevenlabs: {
+    stt: ElevenLabsSTTSession;
+    tts: ElevenLabsTTSSession;
+    token_ttl_seconds: number;
+  } | null;
+}
+
 export interface SessionResponse {
   ephemeral_token: string;
   expires_at: string;
@@ -45,6 +76,15 @@ export interface SessionResponse {
   system_prompt: string;
   playbook_id: string | null;
   tool_declarations: Record<string, unknown>[];
+  /** The ACTIVE voice stack. May differ from the requested one (server fallback). */
+  voice: SessionVoice;
+  /** camelCase Live connect config, identical to what the token locks. */
+  live_config: Record<string, unknown>;
+}
+
+export interface VoiceTokenResponse {
+  token: string;
+  ttl_seconds: number;
 }
 
 export interface KBResult {

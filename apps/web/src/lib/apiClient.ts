@@ -16,6 +16,8 @@ import type {
   PlaybookSummary,
   SegmentResponse,
   SessionResponse,
+  VoiceProvider,
+  VoiceTokenResponse,
 } from "./types";
 
 export class ApiError extends Error {
@@ -80,6 +82,9 @@ export class ApiClient {
     playbookId?: string;
     language?: "en" | "ur";
     deviceHint?: string;
+    voiceProvider?: VoiceProvider;
+    /** Must be true: the server refuses to start a session without consent. */
+    consent: boolean;
   }): Promise<SessionResponse> {
     return this.request<SessionResponse>("/session", {
       method: "POST",
@@ -88,8 +93,18 @@ export class ApiClient {
         playbook_id: args.playbookId,
         language: args.language ?? "en",
         device_hint: args.deviceHint,
+        voice_provider: args.voiceProvider ?? "elevenlabs",
+        consent: args.consent,
       }),
     });
+  }
+
+  /** Fresh single-use ElevenLabs token (they are consumed on connect). */
+  mintVoiceToken(kind: "stt" | "tts"): Promise<string> {
+    return this.request<VoiceTokenResponse>("/voice/token", {
+      method: "POST",
+      body: JSON.stringify({ kind }),
+    }).then((r) => r.token);
   }
 
   detect(args: {

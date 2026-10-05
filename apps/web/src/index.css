@@ -1,21 +1,207 @@
 @import "tailwindcss";
 
+/* Only the Arabic-script subset of each Urdu face is shipped (the Latin
+   subset is not needed: UI Latin text uses the system font). */
+@import "@fontsource/noto-naskh-arabic/arabic-400.css";
+@import "@fontsource/noto-naskh-arabic/arabic-600.css";
+@import "@fontsource/noto-nastaliq-urdu/arabic-400.css";
+@import "@fontsource/noto-nastaliq-urdu/arabic-600.css";
+
+/* ---------------------------------------------------------------------
+   Design tokens. Two layers, per Apple's HIG "content vs functional"
+   split: the camera/content layer is never tinted, and controls float
+   above it on glass. One accent ("Mend amber", the colour of a repair
+   tag) is used for the primary action and the voice pill only.
+   --------------------------------------------------------------------- */
 :root {
-  color-scheme: dark light;
+  color-scheme: light dark;
+
+  --font-latin: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-urdu-body: "Noto Nastaliq Urdu", "Noto Naskh Arabic", "Jameel Noori Nastaleeq", serif;
+  --font-urdu-ui: "Noto Naskh Arabic", "Noto Nastaliq Urdu", serif;
+
+  /* Light */
+  --bg: #f6f4ef;
+  --bg-raised: #ffffff;
+  --fg: #1a1814;
+  --fg-muted: #5c574e;
+  --hairline: rgb(26 24 20 / 0.12);
+  --accent: #a35f00;
+  --accent-fg: #ffffff;
+  --accent-soft: rgb(163 95 0 / 0.12);
+  --danger: #c4261d;
+  --ok: #1f7a3a;
+
+  /* Glass sits over the camera, so it is dark in both schemes. */
+  --glass-bg: rgb(28 28 30 / 0.52);
+  --glass-bg-strong: rgb(28 28 30 / 0.92);
+  --glass-border: rgb(255 255 255 / 0.16);
+  --glass-fg: #ffffff;
+  --glass-fg-muted: rgb(255 255 255 / 0.72);
+  --live-accent: #ffb020;
+  --live-accent-fg: #1b1200;
+
+  --radius-sheet: 28px;
+  --radius-card: 22px;
+  --tap: 48px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e0d0b;
+    --bg-raised: #1a1815;
+    --fg: #f4f1ea;
+    --fg-muted: #b3ad9f;
+    --hairline: rgb(255 255 255 / 0.12);
+    --accent: #ffb020;
+    --accent-fg: #1b1200;
+    --accent-soft: rgb(255 176 32 / 0.16);
+    --danger: #ff6b5e;
+    --ok: #5fd184;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-raised: var(--bg-raised);
+  --color-fg: var(--fg);
+  --color-muted: var(--fg-muted);
+  --color-hairline: var(--hairline);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --color-ok: var(--ok);
+  --color-glass-fg: var(--glass-fg);
+  --color-glass-muted: var(--glass-fg-muted);
+  --color-live: var(--live-accent);
+  --color-live-fg: var(--live-accent-fg);
+  --font-sans: var(--font-latin);
+  --radius-sheet: var(--radius-sheet);
+  --radius-card: var(--radius-card);
+}
+
+html,
+body,
+#root {
+  height: 100%;
 }
 
 body {
   margin: 0;
-  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
-  background: #0b0b0b;
-  color: #f5f5f5;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-latin);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
 }
 
-/* Right-to-left layout and a Nastaliq-friendly fallback stack for Urdu
-   captions, per the plan's design rules. Swap the font-family for a real
-   Nastaliq web font once one is bundled; a readable system fallback
-   stack is used until then so Urdu text is never unreadable boxes. */
-[lang="ur"] {
-  direction: rtl;
-  font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif;
+/* ---------------------------------------------------------------------
+   Urdu. Right-to-left, with Nastaliq for reading text (it needs generous
+   line height) and Naskh for compact UI labels, where Nastaliq's tall
+   ascenders and descenders clip inside fixed-height buttons.
+   --------------------------------------------------------------------- */
+:lang(ur) {
+  font-family: var(--font-urdu-ui);
+}
+.urdu-body:lang(ur),
+:lang(ur) .urdu-body {
+  font-family: var(--font-urdu-body);
+  line-height: 2.1;
+}
+
+/* ---------------------------------------------------------------------
+   Glass (functional layer). Backdrop blur is a progressive enhancement:
+   the solid fallback colour is already legible without it.
+   --------------------------------------------------------------------- */
+.glass {
+  background: var(--glass-bg);
+  color: var(--glass-fg);
+  border: 1px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(22px) saturate(1.6);
+  backdrop-filter: blur(22px) saturate(1.6);
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.28);
+}
+.glass-strong {
+  background: var(--glass-bg-strong);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    background: rgb(28 28 30 / 0.96);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+@media (prefers-contrast: more) {
+  :root {
+    --hairline: currentColor;
+    --glass-border: rgb(255 255 255 / 0.8);
+    --fg-muted: var(--fg);
+  }
+  .glass {
+    background: #000;
+  }
+}
+
+/* Keyboard focus ring everywhere, in the accent. */
+:focus-visible {
+  outline: 3px solid var(--live-accent);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------
+   Motion. Everything animated has a reduced-motion variant: the orb
+   keeps responding to level (that is information) but stops idling.
+   --------------------------------------------------------------------- */
+@keyframes mend-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+@keyframes mend-sheet-in {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes mend-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.sheet-in {
+  animation: mend-sheet-in 280ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.fade-in {
+  animation: mend-fade-in 200ms ease-out both;
+}
+.breathe {
+  animation: mend-breathe 3.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet-in,
+  .fade-in,
+  .breathe {
+    animation: none;
+  }
+  * {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }
