@@ -28,7 +28,7 @@ describe("start flow", () => {
     useSessionStore.getState().acceptConsent();
     expect(useSessionStore.getState().screen).toBe("live");
     expect(useSessionStore.getState().consented).toBe(true);
-    expect(window.localStorage.getItem("mend.consent.v1")).toBe("1");
+    expect(window.localStorage.getItem("kese.consent.v1")).toBe("1");
   });
 
   it("declining returns home without consenting", () => {
@@ -43,10 +43,5 @@ describe("start flow", () => {
     reset(true);
     useSessionStore.getState().requestStart("ac");
     expect(useSessionStore.getState().screen).toBe("live");
-  });
-
-  it("remembers the language", () => {
-    useSessionStore.getState().setLanguage("en");
-    expect(window.localStorage.getItem("mend.language")).toBe("en");
   });
 });

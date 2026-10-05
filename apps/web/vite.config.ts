@@ -4,20 +4,26 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
+// MEND_DEMO=1 builds the keyless demo that scripts/build-demo.mjs folds
+// into one HTML file: no service worker, and every asset (fonts, worklet)
+// inlined so the page needs nothing but itself.
+const demo = process.env.MEND_DEMO === "1";
+
 // https://vite.dev/config/
 export default defineConfig({
+  build: demo ? { assetsInlineLimit: 100_000_000, cssCodeSplit: false } : {},
   plugins: [
     react(),
     tailwindcss(),
-    VitePWA({
+    ...(demo ? [] : [VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg"],
       manifest: {
-        name: "Mend",
-        short_name: "Mend",
-        description: "Point your phone at it. Mend talks you through the fix.",
-        theme_color: "#0b0b0b",
-        background_color: "#0b0b0b",
+        name: "Kese AI",
+        short_name: "Kese AI",
+        description: "Show it. Ask how. Kese AI talks you through the fix.",
+        theme_color: "#0e0d0b",
+        background_color: "#0e0d0b",
         display: "standalone",
         orientation: "portrait",
         start_url: "/",
@@ -29,7 +35,7 @@ export default defineConfig({
         // precached so "Add to Home Screen" launches instantly.
         navigateFallbackDenylist: [/^\/api\//],
       },
-    }),
+    })]),
   ],
   test: {
     environment: "jsdom",

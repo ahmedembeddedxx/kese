@@ -27,8 +27,7 @@ TOOL_DECLARATIONS: list[dict] = [
     {
         "name": "mark_wire",
         "description": (
-            "Ask the user to tap a wire on screen so it can be segmented, "
-            "named and tracked."
+            "Ask the user to tap a wire on screen so it can be segmented, named and tracked."
         ),
         "parameters": {
             "type": "object",
@@ -58,8 +57,7 @@ TOOL_DECLARATIONS: list[dict] = [
     {
         "name": "safety_gate",
         "description": (
-            "Block progress until the user confirms a safety check on "
-            "screen (e.g. power off)."
+            "Block progress until the user confirms a safety check on screen (e.g. power off)."
         ),
         "parameters": {
             "type": "object",
@@ -132,6 +130,15 @@ _UI_LINE = (
 )
 
 
+_AUTO_LANGUAGE_LINE = (
+    "Reply in the language the user speaks to you, English or Urdu. When "
+    "the user speaks Urdu (including Roman Urdu), reply in Urdu script, "
+    "brief and plain: one or two short sentences at a time. Mixing Urdu "
+    "with English technical words (capacitor, MCB, compressor) is fine. "
+    "Never switch language unless the user does."
+)
+
+
 def build_live_config(*, voice_provider: str, language: str) -> dict:
     """The camelCase Live connect config the browser spreads into
     `ai.live.connect({config: {...live_config, tools}})`.
@@ -154,7 +161,10 @@ def build_live_config(*, voice_provider: str, language: str) -> dict:
         # No audio goes to Gemini in TEXT mode (ElevenLabs does the ears),
         # so voice activity detection and the speech voice only apply here.
         config["realtimeInputConfig"] = {"automaticActivityDetection": {"silenceDurationMs": 700}}
-        config["speechConfig"] = {"languageCode": "ur-PK" if language == "ur" else "en-US"}
+        if language != "auto":
+            # For "auto" no speechConfig is set at all: Gemini native audio
+            # then detects and follows the language the user speaks.
+            config["speechConfig"] = {"languageCode": "ur-PK" if language == "ur" else "en-US"}
     return config
 
 
@@ -165,13 +175,18 @@ def build_system_prompt(
     language: str,
     voice_provider: str = "gemini",
 ) -> str:
-    language_line = (
-        "Speak and write to the user in Urdu by default, switching to "
-        "English only if they speak English to you. " + _URDU_BREVITY_LINE
-        if language == "ur"
-        else "Speak and write to the user in English by default, switching "
-        "to Urdu only if they speak Urdu to you."
-    )
+    if language == "auto":
+        language_line = _AUTO_LANGUAGE_LINE
+    elif language == "ur":
+        language_line = (
+            "Speak and write to the user in Urdu by default, switching to "
+            "English only if they speak English to you. " + _URDU_BREVITY_LINE
+        )
+    else:
+        language_line = (
+            "Speak and write to the user in English by default, switching "
+            "to Urdu only if they speak Urdu to you."
+        )
 
     if playbook is not None:
         steps_summary = "; ".join(f"{s['id']}: {s['say']}" for s in playbook["steps"])
@@ -190,8 +205,17 @@ def build_system_prompt(
     voice_line = _TTS_FRIENDLY_LINE + " " if voice_provider == "elevenlabs" else ""
 
     return (
-        "You are Mend, a calm, encouraging repair assistant that talks a "
+        "You are Kese AI, a calm, encouraging repair assistant that talks a "
         "non-technician through a safe, simple fix using their phone "
-        "camera. " + language_line + " " + voice_line + _UI_LINE + " " + task_line + " "
-        + _SAFETY_RULES + " " + _HARD_REFUSAL_RULES
+        "camera. "
+        + language_line
+        + " "
+        + voice_line
+        + _UI_LINE
+        + " "
+        + task_line
+        + " "
+        + _SAFETY_RULES
+        + " "
+        + _HARD_REFUSAL_RULES
     )

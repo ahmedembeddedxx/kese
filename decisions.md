@@ -366,3 +366,91 @@
 - **Approved by:** Ahmed (direction); details self-approved.
 - **Status:** Active. Visual QA done with Playwright against a fake camera
   only; needs a real phone pass.
+
+## D-015 - English-only UI, multilingual voice, user-selectable voice and models
+- **Date:** 2026-10-05
+- **Context:** After seeing the Urdu-first UI, Ahmed asked for a nicer font
+  (it need not support Urdu), to drop the Urdu language / RTL interface
+  ("only the talking part" is multilingual: an English + Urdu model), and
+  for options to choose the model, voice and so on.
+- **Decision:** Supersedes the "Urdu default, RTL, Nastaliq" part of D-014.
+  The interface is English only (Figtree for text, Bricolage Grotesque for
+  headings; Noto Naskh stays only as a fallback so Urdu captions, which
+  follow what the user speaks, render properly). The session `language` is
+  now `auto` by default: Scribe auto-detects (no `language_code`), the
+  TTS language code is omitted, Gemini-audio fallback sets no `speechConfig`,
+  and the prompt tells the agent to answer in the language the user speaks.
+  A settings sheet (Home) lets the user pick the voice engine (ElevenLabs or
+  Gemini), the ElevenLabs voice, the speech model (`eleven_v4_turbo` or
+  `eleven_v3`) and the vision model. `GET /options` serves the lists;
+  `/session` takes optional `voice_id`, `live_model`, `tts_model` and
+  rejects anything not in the lists (400 `unknown_model` / `unknown_voice`,
+  so a client cannot make us mint tokens for arbitrary models or bill
+  arbitrary voices). With only an ElevenLabs key and no configured voice,
+  the account's first voice is used rather than dropping to Gemini audio.
+  More models can be added by env (`MEND_LIVE_MODEL_OPTIONS_EXTRA`,
+  `MEND_TTS_MODEL_OPTIONS_EXTRA`) with no code change.
+- **Rationale:** The customer speaks Urdu and English mixed; an interface in
+  one language with a voice that follows the speaker is simpler and more
+  reliable than a language switch. Server-side allow-lists keep the choice
+  safe.
+- **Alternatives considered:** Keeping an Urdu UI toggle (rejected by
+  Ahmed); free-text model/voice fields (rejected: abuse and cost risk).
+- **Approved by:** Ahmed (explicit request).
+- **Status:** Active. Unverified: Scribe and Gemini native audio
+  auto-detecting Urdu vs English, `eleven_v3` over the text-to-dialogue
+  socket, and arbitrary Gemini models inside an ephemeral token.
+
+## D-016 - Rebrand to Kese AI, saved chats, simpler navigation
+- **Date:** 2026-10-05
+- **Context:** Ahmed wants to move from prototype toward product: rename to
+  "Kese AI" ("kese" is Urdu for "how"), a simpler mobile-first UI without
+  bulky text, saved chats on the side, the camera on, selectable models and
+  voices, and visibly moving boxes and segmented wires even in the demo.
+- **Decision:** User-facing brand, page title, PWA manifest, the agent's
+  persona in the system prompt and the docs say Kese AI; tagline "Show it.
+  Ask how." Internal identifiers keep "mend" for now (repo name, `MEND_*`
+  env vars, package names, `mend.dev_uid`) because renaming them breaks
+  every existing config and the GitHub repo can only be renamed by the owner
+  in Settings; do it as one mechanical follow-up. New browser storage keys
+  use `kese.*` and read the old `mend.*` ones as a fallback. Chats are saved
+  in localStorage (`kese.chats.v1`; 100 chats, 300 messages, 2000 chars per
+  message, validated on load, halves on quota errors). A chat is created the
+  first time something is said, so empty sessions leave nothing behind.
+  Continuing a chat sends the agent a short recap (last 8 messages) marked
+  "do not reply". The Done screen is replaced by the chat page (transcript,
+  Continue, thumbs, save device). Navigation: persistent sidebar on wide
+  screens, slide-in drawer on phones. Home: a big Start button, three
+  category doors, a horizontal scroller of guided fixes (the full list stays
+  one tap away), recent chats. The camera now starts before any network call
+  so the picture is on screen at once and a missing permission shows
+  immediately. The overlay is a single animation loop: boxes ease toward
+  their targets (smooth tracking between detections), wires are drawn as a
+  translucent mask, outline, crisp stroke, flow animation, end caps and a
+  label fanned from the wire's end; the demo adds handheld drift.
+- **Rationale:** Local chats give continuity with no account or server
+  storage (nothing sensitive leaves the device); lazy creation avoids a
+  history full of empty rows; keeping internal names avoids a risky
+  big-bang rename while the brand is already consistent for customers.
+- **Alternatives considered:** Server-side chat storage (rejected for now:
+  needs accounts and a privacy review); IndexedDB (rejected: more code for
+  data that is small); renaming env vars immediately (rejected: breaks
+  configs without the repo rename).
+- **Approved by:** Ahmed (requested); implementation choices self-approved.
+- **Status:** Active. Needs a real-phone pass; chats are per browser and are
+  lost if site data is cleared.
+
+## D-017 - Always open the PR and merge it (personal repo)
+- **Date:** 2026-10-05
+- **Context:** Ahmed: "merge it always". Extends D-007, which allowed merging
+  without per-PR sign-off on personal repos.
+- **Decision:** On `ahmedembeddedxx/mend` (a personal repo), finished work goes
+  through a PR into `main` and is merged as soon as CI is green and the PR is
+  conflict-free, without asking again. CI must be green first; a red CI is fixed,
+  not merged over. Organization repos are unchanged: never merge without an
+  explicit go-ahead.
+- **Rationale:** Keeps `main` current and the PR history (with the co-author
+  trailer) flowing; CI is the safety net.
+- **Alternatives considered:** Asking before every merge (rejected by Ahmed).
+- **Approved by:** Ahmed (explicit).
+- **Status:** Active.

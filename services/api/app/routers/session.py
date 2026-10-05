@@ -5,7 +5,13 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from app.auth import AuthedUser, get_current_user
-from app.config import ModelConfig, Settings, get_settings
+from app.config import (
+    ModelConfig,
+    Settings,
+    get_settings,
+    live_model_options,
+    tts_model_options,
+)
 from app.dependencies import get_elevenlabs_client, get_gemini_client
 from app.live_tools import TOOL_DECLARATIONS, build_live_config, build_system_prompt
 from app.models import (
@@ -18,7 +24,11 @@ from app.models import (
 )
 from app.playbooks import PlaybookNotFoundError, get_playbook_registry
 from app.rate_limit import limiter
-from app.services.elevenlabs_client import ElevenLabsClient, ElevenLabsClientError
+from app.services.elevenlabs_client import (
+    FAKE_VOICE_ID,
+    ElevenLabsClient,
+    ElevenLabsClientError,
+)
 from app.services.gemini_client import GeminiClient, GeminiClientError
 
 router = APIRouter()
@@ -39,6 +49,13 @@ def create_session(
     if not body.consent:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="consent_required")
 
+    live_model = body.live_model or ModelConfig.LIVE
+    tts_model = body.tts_model or ModelConfig.ELEVENLABS_TTS
+    if live_model not in {o["id"] for o in live_model_options(settings)} or (
+        tts_model not in {o["id"] for o in tts_model_options(settings)}
+    ):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="unknown_model")
+
     registry = get_playbook_registry()
     playbook = None
     if body.playbook_id:
@@ -55,10 +72,12 @@ def create_session(
                 detail="playbook_id does not belong to the given category",
             )
 
-    language = "ur" if body.language == "ur" else "en"
+    language = body.language
     voice = _resolve_voice(
         requested=body.voice_provider,
         language=language,
+        voice_id=body.voice_id,
+        tts_model=tts_model,
         settings=settings,
         elevenlabs=elevenlabs,
     )
@@ -66,7 +85,7 @@ def create_session(
     system_prompt = build_system_prompt(
         category=body.category,
         playbook=playbook,
-        language=body.language,
+        language=language,
         voice_provider=voice.provider,
     )
     live_config = build_live_config(voice_provider=voice.provider, language=language)
@@ -77,6 +96,7 @@ def create_session(
             system_prompt=system_prompt,
             live_config=live_config,
             tool_declarations=TOOL_DECLARATIONS,
+            model=live_model,
         )
     except GeminiClientError as exc:
         # Log the real cause server-side; never echo internal exception
@@ -90,7 +110,7 @@ def create_session(
     return SessionResponse(
         ephemeral_token=token.token,
         expires_at=token.expires_at,
-        live_model=_live_model_name(),
+        live_model=live_model,
         system_prompt=system_prompt,
         playbook_id=playbook["id"] if playbook else None,
         tool_declarations=TOOL_DECLARATIONS,
@@ -103,6 +123,8 @@ def _resolve_voice(
     *,
     requested: str,
     language: str,
+    voice_id: str | None = None,
+    tts_model: str = ModelConfig.ELEVENLABS_TTS,
     settings: Settings,
     elevenlabs: ElevenLabsClient,
 ) -> SessionVoice:
@@ -112,15 +134,44 @@ def _resolve_voice(
     voice id are configured AND both tokens mint successfully. Otherwise we
     silently fall back to Gemini native audio (logged), because the user
     must never be left without a voice. Not exercised against a live key.
+
+    A `voice_id` the user picked must be one of the account's voices
+    (HTTP 400 `unknown_voice` otherwise); if the voice list cannot be
+    fetched we fall back to Gemini audio like any other ElevenLabs failure.
     """
     fallback = SessionVoice(provider="gemini", language=language)
     if requested != "elevenlabs":
         return fallback
 
-    voice_id = settings.elevenlabs_voice_id or ("fake-voice-id" if settings.dev_fakes else None)
-    if not voice_id or not (settings.dev_fakes or settings.elevenlabs_api_key):
-        logger.warning("ElevenLabs not configured (key or voice id missing); using Gemini audio")
+    default_voice_id = settings.elevenlabs_voice_id or (
+        FAKE_VOICE_ID if settings.dev_fakes else None
+    )
+    resolved_voice_id = voice_id or default_voice_id
+    if not (settings.dev_fakes or settings.elevenlabs_api_key):
+        logger.warning("ElevenLabs not configured (no API key); using Gemini audio")
         return fallback
+    if not resolved_voice_id:
+        # A key is enough to get started: use the first voice on the account
+        # instead of silently dropping to Gemini audio. Pick a specific one
+        # in Settings or with MEND_ELEVENLABS_VOICE_ID.
+        try:
+            voices = elevenlabs.list_voices()
+        except ElevenLabsClientError as exc:
+            logger.warning("Could not list ElevenLabs voices, using Gemini audio: %s", exc)
+            return fallback
+        if not voices:
+            logger.warning("ElevenLabs account has no voices; using Gemini audio")
+            return fallback
+        resolved_voice_id = voices[0].voice_id
+
+    if voice_id is not None:
+        try:
+            known_voice_ids = {v.voice_id for v in elevenlabs.list_voices()}
+        except ElevenLabsClientError as exc:
+            logger.warning("Could not list ElevenLabs voices, using Gemini audio: %s", exc)
+            return fallback
+        if voice_id not in known_voice_ids:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="unknown_voice")
 
     try:
         stt_token = elevenlabs.mint_single_use_token("realtime_scribe")
@@ -129,11 +180,11 @@ def _resolve_voice(
         logger.warning("Could not mint ElevenLabs tokens, using Gemini audio: %s", exc)
         return fallback
 
-    stt_language = (
-        ModelConfig.ELEVENLABS_STT_LANGUAGE_UR
-        if language == "ur"
-        else ModelConfig.ELEVENLABS_STT_LANGUAGE_EN
-    )
+    # None for "auto": the browser omits the parameter so Scribe auto-detects.
+    stt_language = {
+        "ur": ModelConfig.ELEVENLABS_STT_LANGUAGE_UR,
+        "en": ModelConfig.ELEVENLABS_STT_LANGUAGE_EN,
+    }.get(language)
     return SessionVoice(
         provider="elevenlabs",
         language=language,
@@ -150,17 +201,11 @@ def _resolve_voice(
             tts=ElevenLabsTTSSession(
                 url=ModelConfig.ELEVENLABS_TTS_WS_URL,
                 token=tts_token,
-                model_id=ModelConfig.ELEVENLABS_TTS,
-                voice_id=voice_id,
+                model_id=tts_model,
+                voice_id=resolved_voice_id,
                 output_format=ModelConfig.ELEVENLABS_OUTPUT_FORMAT,
-                language_code=language,
+                language_code=None if language == "auto" else language,
             ),
             token_ttl_seconds=900,
         ),
     )
-
-
-def _live_model_name() -> str:
-    from app.config import ModelConfig
-
-    return ModelConfig.LIVE

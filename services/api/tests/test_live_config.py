@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 
 import pytest
 
+from app.config import ModelConfig
 from app.live_tools import TOOL_DECLARATIONS, build_live_config, build_system_prompt
 from app.services.gemini_client import (
     EPHEMERAL_TOKEN_USES,
@@ -60,6 +61,54 @@ def test_constraints_validate_against_sdk_models(provider, language):
     # Tool parameter names are ours and must survive untouched.
     advance = next(d for d in declared if d.name == "advance_step")
     assert "step_id" in advance.parameters.properties
+
+
+def test_auto_language_has_no_speech_config():
+    from google.genai import types
+
+    live_config = build_live_config(voice_provider="gemini", language="auto")
+    assert "speechConfig" not in live_config
+    assert live_config["realtimeInputConfig"] == {
+        "automaticActivityDetection": {"silenceDurationMs": 700}
+    }
+    auth_config, _ = build_auth_token_config(
+        ttl_seconds=60,
+        live_config=live_config,
+        tool_declarations=TOOL_DECLARATIONS,
+        system_prompt="prompt",
+    )
+    cfg = auth_config.live_connect_constraints.config
+    assert isinstance(cfg, types.LiveConnectConfig)
+    assert cfg.speech_config is None
+
+
+def test_elevenlabs_config_is_language_independent():
+    assert build_live_config(voice_provider="elevenlabs", language="auto") == build_live_config(
+        voice_provider="elevenlabs", language="en"
+    )
+
+
+def test_token_constraints_use_the_given_model():
+    kwargs = {
+        "ttl_seconds": 60,
+        "live_config": build_live_config(voice_provider="gemini", language="en"),
+        "tool_declarations": TOOL_DECLARATIONS,
+        "system_prompt": "p",
+    }
+    default, _ = build_auth_token_config(**kwargs)
+    chosen, _ = build_auth_token_config(model="gemini-alt-live", **kwargs)
+    assert default.live_connect_constraints.model == ModelConfig.LIVE
+    assert chosen.live_connect_constraints.model == "gemini-alt-live"
+
+
+def test_auto_prompt_leaves_en_and_ur_variants_alone():
+    en = build_system_prompt(category="general", playbook=None, language="en")
+    ur = build_system_prompt(category="general", playbook=None, language="ur")
+    auto = build_system_prompt(category="general", playbook=None, language="auto")
+    assert "in English by default" in en
+    assert "in Urdu by default" in ur
+    assert "by default" not in auto
+    assert "language the user speaks" in auto
 
 
 def test_unknown_config_field_is_rejected_by_the_sdk():

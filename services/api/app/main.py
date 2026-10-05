@@ -9,7 +9,18 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.config import get_settings
 from app.rate_limit import limiter
-from app.routers import detect, devices, events, gates, kb, playbooks, segment, session, voice
+from app.routers import (
+    detect,
+    devices,
+    events,
+    gates,
+    kb,
+    options,
+    playbooks,
+    segment,
+    session,
+    voice,
+)
 
 settings = get_settings()
 
@@ -36,7 +47,7 @@ class MaxBodySizeMiddleware(BaseHTTPMiddleware):
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="Mend API", version="0.1.0")
+    app = FastAPI(title="Kese AI API", version="0.1.0")
 
     app.state.limiter = limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
@@ -59,6 +70,7 @@ def create_app() -> FastAPI:
     app.include_router(playbooks.router)
     app.include_router(gates.router)
     app.include_router(voice.router)
+    app.include_router(options.router)
 
     @app.get("/healthz")
     def healthz() -> dict:

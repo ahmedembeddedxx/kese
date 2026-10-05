@@ -19,7 +19,7 @@ export type Phase =
 export type CameraSource = "environment" | "user" | "screen";
 
 export interface LiveError {
-  kind: "camera" | "mic" | "consent" | "busy" | "generic";
+  kind: "camera" | "mic" | "consent" | "option" | "busy" | "generic";
 }
 
 interface LiveState {
@@ -36,6 +36,8 @@ interface LiveState {
   usingFallbackVoice: boolean;
   error: LiveError | null;
   playbook: PlaybookDetail | null;
+  /** Demo build only: the user's real camera is showing instead of the drawn scene. */
+  demoRealCamera: boolean;
 
   reset: () => void;
   setPhase: (phase: Phase) => void;
@@ -48,6 +50,7 @@ interface LiveState {
   setVoice: (provider: VoiceProvider, fallback: boolean) => void;
   fail: (error: LiveError) => void;
   setPlaybook: (playbook: PlaybookDetail | null) => void;
+  setDemoRealCamera: (on: boolean) => void;
 }
 
 const initial = {
@@ -64,6 +67,7 @@ const initial = {
   usingFallbackVoice: false,
   error: null as LiveError | null,
   playbook: null as PlaybookDetail | null,
+  demoRealCamera: false,
 };
 
 export const useLiveStore = create<LiveState>((set) => ({
@@ -79,4 +83,5 @@ export const useLiveStore = create<LiveState>((set) => ({
   setVoice: (voiceProvider, usingFallbackVoice) => set({ voiceProvider, usingFallbackVoice }),
   fail: (error) => set({ error, phase: "error" }),
   setPlaybook: (playbook) => set({ playbook }),
+  setDemoRealCamera: (demoRealCamera) => set({ demoRealCamera }),
 }));

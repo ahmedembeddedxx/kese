@@ -1,12 +1,6 @@
-import { useCallback } from "react";
-import { useSessionStore } from "../store/sessionStore";
-import { type Language, type StringKey, translate } from "./strings";
+import { type StringKey, translate } from "./strings";
 
+/** Stable function; the UI has a single language so no store subscription is needed. */
 export function useI18n() {
-  const language = useSessionStore((s) => s.language);
-  const t = useCallback(
-    (key: StringKey, vars?: Record<string, string | number>) => translate(language, key, vars),
-    [language],
-  );
-  return { t, language: language as Language, dir: language === "ur" ? ("rtl" as const) : ("ltr" as const) };
+  return { t: (key: StringKey, vars?: Record<string, string | number>) => translate(key, vars) };
 }

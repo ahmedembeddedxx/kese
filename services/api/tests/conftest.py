@@ -15,6 +15,7 @@ from app.dependencies import (
     get_replicate_client,
 )
 from app.main import create_app
+from app.services.elevenlabs_client import ElevenLabsVoice, reset_voices_cache
 from app.services.gemini_client import EphemeralToken, RawDetection
 from app.services.replicate_client import RawSegmentation
 
@@ -36,7 +37,7 @@ class FakeGeminiClient:
         self.mint_calls: list[dict] = []
 
     def mint_ephemeral_token(
-        self, *, ttl_seconds, live_config, tool_declarations, system_prompt
+        self, *, ttl_seconds, live_config, tool_declarations, system_prompt, model=None
     ) -> EphemeralToken:
         self.mint_calls.append(
             {
@@ -44,6 +45,7 @@ class FakeGeminiClient:
                 "live_config": live_config,
                 "tool_declarations": tool_declarations,
                 "system_prompt": system_prompt,
+                "model": model,
             }
         )
         if self.fail:
@@ -76,6 +78,28 @@ class FakeElevenLabsClient:
     def __init__(self) -> None:
         self.fail = False
         self.calls: list[str] = []
+        # list_voices has its own failure switch and call log so existing
+        # assertions on `calls` (token mints) are unaffected.
+        self.list_fail = False
+        self.list_calls = 0
+        self.voices = [
+            ElevenLabsVoice(
+                voice_id="voiceaaaa0001",
+                name="Aisha",
+                category="premade",
+                description="Calm and clear",
+                preview_url="https://example.invalid/aisha.mp3",
+            ),
+            ElevenLabsVoice(voice_id="voicebbbb0002", name="Bilal"),
+        ]
+
+    def list_voices(self):
+        self.list_calls += 1
+        if self.list_fail:
+            from app.services.elevenlabs_client import ElevenLabsClientError
+
+            raise ElevenLabsClientError("voice list boom")
+        return list(self.voices)
 
     def mint_single_use_token(self, token_type):
         self.calls.append(token_type)
@@ -147,6 +171,7 @@ def _reset_rate_limiter():
     from app.rate_limit import limiter
 
     limiter.reset()
+    reset_voices_cache()
     yield
 
 

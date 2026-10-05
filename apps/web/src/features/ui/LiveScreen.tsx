@@ -27,8 +27,12 @@ import type { Point1000 } from "../../lib/types";
 import { captureFrameAsJpegBase64 } from "../../lib/camera";
 import { type Phase, useLiveStore } from "../../store/liveStore";
 import { useOverlayStore } from "../../store/overlayStore";
+import { useChatStore } from "../../store/chatStore";
 import { useSessionStore } from "../../store/sessionStore";
-import { useLiveSession } from "../live/useLiveSession";
+import { recapForAgent } from "../live/chatRecorder";
+import { IS_MOCK_LIVE, useLiveSession } from "../live/useLiveSession";
+import { MOCK_SCENE } from "../live/mockScene";
+import { MockDemoBar } from "../../components/MockDemoBar";
 import { OverlayCanvas } from "../overlay/OverlayCanvas";
 
 const PHASE_LABEL: Record<Phase, StringKey> = {
@@ -44,6 +48,7 @@ const ERROR_KEY = {
   camera: "errorCamera",
   mic: "errorMic",
   consent: "errorConsent",
+  option: "errorOption",
   busy: "errorBusy",
   generic: "errorGeneric",
 } as const satisfies Record<string, StringKey>;
@@ -54,16 +59,39 @@ interface LiveScreenProps {
 }
 
 export function LiveScreen({ apiBaseUrl, apiClient }: LiveScreenProps) {
-  const { t, dir } = useI18n();
-  const { category, playbookId, finishRepair, goHome } = useSessionStore();
+  const { t } = useI18n();
+  const { category, playbookId, finishRepair, goHome, pendingChatId, pendingTitle, beginChat } = useSessionStore();
   const live = useLiveStore();
   const hintEn = useOverlayStore((s) => s.pendingWireHintEn);
   const session = useLiveSession({ apiBaseUrl });
-  const { videoRef, levelRef, start, end } = session;
+  const { videoRef, levelRef, driftRef, start, end } = session;
+
+  // Starts (or restarts, on Retry) the session. Resumes the chosen chat, or
+  // opens a new one the moment something is said, so a session where nobody
+  // speaks leaves nothing behind.
+  function launch() {
+    if (!category) return;
+    const existing = pendingChatId
+      ? useChatStore.getState().chats.find((c) => c.id === pendingChatId)
+      : undefined;
+    if (existing) beginChat(existing.id);
+    void start(category, playbookId, {
+      resolveChatId: () => {
+        if (existing) return existing.id;
+        const active = useSessionStore.getState().activeChatId;
+        if (active) return active;
+        const id = useChatStore
+          .getState()
+          .createChat({ category, playbookId, title: pendingTitle ?? undefined });
+        beginChat(id);
+        return id;
+      },
+      recap: existing ? recapForAgent(existing.messages) : null,
+    });
+  }
 
   useEffect(() => {
-    if (!category) return;
-    void start(category, playbookId);
+    launch();
     return () => {
       end();
       useOverlayStore.getState().clearHighlights();
@@ -102,7 +130,6 @@ export function LiveScreen({ apiBaseUrl, apiClient }: LiveScreenProps) {
 
   return (
     <div
-      dir={dir}
       className="fixed inset-0 overflow-hidden bg-black text-white"
       data-testid="live-screen"
     >
@@ -111,7 +138,7 @@ export function LiveScreen({ apiBaseUrl, apiClient }: LiveScreenProps) {
         autoPlay
         playsInline
         muted
-        className="absolute inset-0 h-full w-full object-cover"
+        className={`absolute inset-0 h-full w-full object-cover ${IS_MOCK_LIVE && !live.demoRealCamera ? "hidden" : ""}`}
         style={{ transform: mirrored ? "scaleX(-1)" : undefined }}
         data-testid="camera-video"
       />
@@ -119,7 +146,13 @@ export function LiveScreen({ apiBaseUrl, apiClient }: LiveScreenProps) {
       <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/45 to-transparent" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-black/70 to-transparent" />
 
-      <OverlayCanvas videoRef={videoRef} mirrored={mirrored} onTapPoint={(p) => void handleTapPoint(p)} />
+      <OverlayCanvas
+        videoRef={videoRef}
+        mirrored={mirrored}
+        onTapPoint={(p) => void handleTapPoint(p)}
+        backdrop={IS_MOCK_LIVE && !live.demoRealCamera ? MOCK_SCENE : undefined}
+        driftRef={IS_MOCK_LIVE && !live.demoRealCamera ? driftRef : undefined}
+      />
 
       <div className="absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-3 px-4 pt-[calc(0.75rem+var(--safe-top))]">
         <StepChip />
@@ -139,6 +172,7 @@ export function LiveScreen({ apiBaseUrl, apiClient }: LiveScreenProps) {
       </div>
 
       <StepsPanel />
+      {IS_MOCK_LIVE && <MockDemoBar />}
 
       {hintEn && (
         <div className="glass absolute inset-x-0 top-24 z-10 mx-auto w-fit rounded-full px-4 py-2 text-sm font-semibold">
@@ -151,7 +185,7 @@ export function LiveScreen({ apiBaseUrl, apiClient }: LiveScreenProps) {
         <p className="text-center text-sm font-medium text-white/80" aria-hidden="true">
           {phaseLabel}
         </p>
-        {/* Media-style controls keep a fixed left-to-right order in both languages. */}
+        {/* Media-style controls keep one fixed order. */}
         <div dir="ltr" className="flex items-center gap-2">
           <GlassButton
             label={t("flipCamera")}
@@ -207,9 +241,7 @@ export function LiveScreen({ apiBaseUrl, apiClient }: LiveScreenProps) {
             </button>
             <button
               type="button"
-              onClick={() => {
-                if (category) void start(category, playbookId);
-              }}
+              onClick={launch}
               className="min-h-[52px] rounded-2xl bg-live px-6 text-base font-semibold text-live-fg"
             >
               {t("retry")}

@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Rules for any coding agent (Claude or otherwise) working in this repo.
+Rules for any coding agent (Claude or otherwise) working in this repo (product name: Kese AI).
 Taken from the Mend technical plan's "Instructions for Claude" and the
 team's own session protocol. These are not suggestions.
 
@@ -47,7 +47,7 @@ team's own session protocol. These are not suggestions.
     directory is gitignored because the HIG text is Apple's) and invoke
     `/apple-design`. Follow its accessibility rules (44pt targets, 4.5:1
     contrast, reduced motion/transparency/contrast fallbacks) and keep all
-    copy in `apps/web/src/i18n/strings.ts` in BOTH languages.
+    UI copy in `apps/web/src/i18n/strings.ts` (the UI is English only, D-015).
 13. **Visual QA before a UI PR.** Build with `VITE_MOCK_LIVE=1` and take
     Playwright screenshots of Home, Consent, the repair sheet, Live
     (`?mock=listening|thinking|speaking|gate`) and Done at phone and

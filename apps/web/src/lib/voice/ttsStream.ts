@@ -15,7 +15,7 @@ export interface TtsConfig {
   modelId: string;
   voiceId: string;
   outputFormat: "pcm_24000";
-  languageCode?: string;
+  languageCode?: string | null;
   getToken: () => Promise<string>;
   webSocketFactory?: WebSocketFactory;
   keepAliveMs?: number;

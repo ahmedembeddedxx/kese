@@ -1,11 +1,12 @@
 @import "tailwindcss";
 
-/* Only the Arabic-script subset of each Urdu face is shipped (the Latin
-   subset is not needed: UI Latin text uses the system font). */
+/* Figtree for text, Bricolage Grotesque for headings. Naskh (Arabic script
+   only) is a fallback so Urdu captions, which follow what the user speaks,
+   always render in a proper face. */
+@import "@fontsource-variable/figtree/wght.css";
+@import "@fontsource-variable/bricolage-grotesque/wght.css";
 @import "@fontsource/noto-naskh-arabic/arabic-400.css";
 @import "@fontsource/noto-naskh-arabic/arabic-600.css";
-@import "@fontsource/noto-nastaliq-urdu/arabic-400.css";
-@import "@fontsource/noto-nastaliq-urdu/arabic-600.css";
 
 /* ---------------------------------------------------------------------
    Design tokens. Two layers, per Apple's HIG "content vs functional"
@@ -16,9 +17,8 @@
 :root {
   color-scheme: light dark;
 
-  --font-latin: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-urdu-body: "Noto Nastaliq Urdu", "Noto Naskh Arabic", "Jameel Noori Nastaleeq", serif;
-  --font-urdu-ui: "Noto Naskh Arabic", "Noto Nastaliq Urdu", serif;
+  --font-latin: "Figtree Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Naskh Arabic", sans-serif;
+  --font-display: "Bricolage Grotesque Variable", "Figtree Variable", ui-sans-serif, system-ui, "Noto Naskh Arabic", sans-serif;
 
   /* Light */
   --bg: #f6f4ef;
@@ -49,7 +49,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #0e0d0b;
     --bg-raised: #1a1815;
     --fg: #f4f1ea;
@@ -60,7 +60,23 @@
     --accent-soft: rgb(255 176 32 / 0.16);
     --danger: #ff6b5e;
     --ok: #5fd184;
+    color-scheme: dark;
   }
+}
+
+/* Same dark values for hosts that set the theme explicitly. */
+:root[data-theme="dark"] {
+  --bg: #0e0d0b;
+  --bg-raised: #1a1815;
+  --fg: #f4f1ea;
+  --fg-muted: #b3ad9f;
+  --hairline: rgb(255 255 255 / 0.12);
+  --accent: #ffb020;
+  --accent-fg: #1b1200;
+  --accent-soft: rgb(255 176 32 / 0.16);
+  --danger: #ff6b5e;
+  --ok: #5fd184;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -99,18 +115,13 @@ body {
   overscroll-behavior: none;
 }
 
-/* ---------------------------------------------------------------------
-   Urdu. Right-to-left, with Nastaliq for reading text (it needs generous
-   line height) and Naskh for compact UI labels, where Nastaliq's tall
-   ascenders and descenders clip inside fixed-height buttons.
-   --------------------------------------------------------------------- */
-:lang(ur) {
-  font-family: var(--font-urdu-ui);
+.font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
 }
-.urdu-body:lang(ur),
-:lang(ur) .urdu-body {
-  font-family: var(--font-urdu-body);
-  line-height: 2.1;
+h1,
+h2 {
+  font-family: var(--font-display);
 }
 
 /* ---------------------------------------------------------------------
@@ -176,6 +187,33 @@ body {
     opacity: 1;
   }
 }
+@keyframes mend-drawer-in {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+[dir="rtl"] .drawer-in {
+  animation-name: none;
+}
+.drawer-in {
+  animation: mend-drawer-in 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes mend-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(1.32);
+    opacity: 0;
+  }
+}
+.ring-pulse {
+  animation: mend-ring 2.4s ease-out infinite;
+}
 @keyframes mend-fade-in {
   from {
     opacity: 0;
@@ -197,7 +235,10 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .sheet-in,
   .fade-in,
-  .breathe {
+  .drawer-in,
+  .breathe,
+  .ring-pulse,
+  .animate-pulse {
     animation: none;
   }
   * {

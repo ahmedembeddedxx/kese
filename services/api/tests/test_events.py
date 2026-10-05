@@ -22,9 +22,7 @@ def test_record_event(client, auth_headers, fakes):
 
 
 def test_record_event_requires_auth(client):
-    response = client.post(
-        "/events", json={"session_id": "sess-1", "kind": "step_completed"}
-    )
+    response = client.post("/events", json={"session_id": "sess-1", "kind": "step_completed"})
     assert response.status_code == 401
 
 

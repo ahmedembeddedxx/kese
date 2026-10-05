@@ -31,6 +31,8 @@ import { TtsStream } from "../../lib/voice/ttsStream";
 import { useLiveStore, type LiveError } from "../../store/liveStore";
 import { useOverlayStore } from "../../store/overlayStore";
 import { useSessionStore } from "../../store/sessionStore";
+import { useSettingsStore } from "../../store/settingsStore";
+import { ChatRecorder } from "./chatRecorder";
 import { type LiveSessionHandle, openLiveSession } from "./geminiLiveClient";
 import { runMockLive } from "./mockLive";
 import { derivePhase } from "./phase";
@@ -64,10 +66,29 @@ function classifyError(error: unknown): LiveError {
   }
   if (error instanceof ApiError) {
     if (error.status === 403) return { kind: "consent" };
+    if (error.status === 400) return { kind: "option" };
     if (error.status === 429) return { kind: "busy" };
   }
   if (error instanceof DOMException && error.name === "NotAllowedError") return { kind: "mic" };
   return { kind: "generic" };
+}
+
+function recordToolEvent(
+  recorder: ChatRecorder | null,
+  name: string,
+  args: unknown,
+  result: unknown,
+  playbook: PlaybookDetail | null,
+): void {
+  if (!recorder || (result as { ok?: boolean } | null)?.ok !== true) return;
+  if (name === "advance_step") {
+    const stepId = (args as { step_id?: string } | null)?.step_id;
+    const step = playbook?.steps.find((st) => st.id === stepId);
+    const index = playbook?.steps.findIndex((st) => st.id === stepId) ?? -1;
+    if (step) recorder.event(`Step ${index + 1}: ${step.say}`);
+  } else if (name === "safety_gate") {
+    recorder.event("Safety check");
+  }
 }
 
 export interface UseLiveSessionArgs {
@@ -89,6 +110,13 @@ export function useLiveSession({ apiBaseUrl }: UseLiveSessionArgs) {
   const smootherRef = useRef(new LevelSmoother());
   const timersRef = useRef<number[]>([]);
   const stopMockRef = useRef<(() => void) | null>(null);
+  const recorderRef = useRef<ChatRecorder | null>(null);
+  const recapRef = useRef<string | null>(null);
+  // Bumped by every start() and cleanup() so a start that was superseded
+  // (React dev double-mount, quick retry) stops touching shared state.
+  const startTokenRef = useRef(0);
+  // Handheld-camera drift for the keyless demo, in the scene's 0-1000 units.
+  const driftRef = useRef({ x: 0, y: 0 });
 
   // Mutable flags read by the phase poller. Refs, not state: they change
   // from socket callbacks and must not re-render the tree.
@@ -109,11 +137,14 @@ export function useLiveSession({ apiBaseUrl }: UseLiveSessionArgs) {
 
   const cleanup = useCallback(() => {
     flagsRef.current.generation++;
+    startTokenRef.current++;
     flagsRef.current.connected = false;
     for (const id of timersRef.current) window.clearInterval(id);
     timersRef.current = [];
     stopMockRef.current?.();
     stopMockRef.current = null;
+    recorderRef.current?.close();
+    recorderRef.current = null;
     scribeRef.current?.close();
     scribeRef.current = null;
     ttsRef.current?.close();
@@ -134,6 +165,7 @@ export function useLiveSession({ apiBaseUrl }: UseLiveSessionArgs) {
   }, []);
 
   const bargeIn = useCallback(() => {
+    recorderRef.current?.finishAgent();
     playerRef.current?.stop();
     ttsRef.current?.stop();
     chunkerRef.current.reset();
@@ -145,7 +177,7 @@ export function useLiveSession({ apiBaseUrl }: UseLiveSessionArgs) {
       const generation = ++flags.generation;
       const stale = () => generation !== flags.generation || flags.ended;
       const live = useLiveStore.getState();
-      const language = useSessionStore.getState().language;
+      const settings = useSettingsStore.getState();
       const apiClient = apiClientRef.current;
 
       live.reset();
@@ -156,12 +188,21 @@ export function useLiveSession({ apiBaseUrl }: UseLiveSessionArgs) {
       flags.agentTurnOpen = false;
 
       try {
+        // Camera first: the picture is on screen immediately, before any
+        // network call, and a missing permission is reported straight away.
+        const camera = new CameraController(() => void switchSource("environment"));
+        cameraRef.current = camera;
+        await attachCamera(camera, "environment");
+        if (stale()) return;
+
         const [session, gates, playbook] = await Promise.all([
           apiClient.createSession({
             category,
             playbookId: playbookId ?? undefined,
-            language,
-            voiceProvider: forceGemini ? "gemini" : "elevenlabs",
+            voiceProvider: forceGemini ? "gemini" : settings.voiceProvider,
+            voiceId: settings.voiceId,
+            liveModel: settings.liveModel,
+            ttsModel: settings.ttsModel,
             consent: useSessionStore.getState().consented,
           }),
           apiClient.getGates(),
@@ -175,12 +216,6 @@ export function useLiveSession({ apiBaseUrl }: UseLiveSessionArgs) {
         const sessionId = crypto.randomUUID();
         useSessionStore.getState().setSession(session, sessionId);
         useLiveStore.getState().setVoice(session.voice.provider, forceGemini);
-
-        // Camera first (the user sees themselves connect), then the mic.
-        const camera = new CameraController(() => void switchSource("environment"));
-        cameraRef.current = camera;
-        await attachCamera(camera, "environment");
-        if (stale()) return;
 
         const micStream = await navigator.mediaDevices.getUserMedia({
           audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
@@ -231,6 +266,7 @@ export function useLiveSession({ apiBaseUrl }: UseLiveSessionArgs) {
                 useLiveStore.getState().setAgentCaption("");
               }
               useLiveStore.getState().appendAgentCaption(delta);
+              recorderRef.current?.appendAgent(delta);
               for (const chunk of chunkerRef.current.push(delta)) ttsRef.current?.speak(chunk);
             },
             onInputTranscript: (text) => {
@@ -238,6 +274,7 @@ export function useLiveSession({ apiBaseUrl }: UseLiveSessionArgs) {
               flags.agentTurnOpen = false;
               flags.awaitingReply = true;
               useLiveStore.getState().appendUserCaption(text);
+              recorderRef.current?.appendUser(text);
             },
             onOutputTranscript: (text) => {
               if (textMode) return; // captions come from the text deltas
@@ -247,14 +284,17 @@ export function useLiveSession({ apiBaseUrl }: UseLiveSessionArgs) {
                 useLiveStore.getState().setUserCaption("");
               }
               useLiveStore.getState().appendAgentCaption(text);
+              recorderRef.current?.appendAgent(text);
             },
             onToolCall: (name, args, callId) => {
               void dispatch(name, args).then((result) => {
+                recordToolEvent(recorderRef.current, name, args, result, playbook);
                 liveRef.current?.sendToolResponse(callId, result as Record<string, unknown>);
               });
             },
             onTurnComplete: () => {
               flags.agentTurnOpen = false;
+              recorderRef.current?.finishAgent();
               for (const chunk of chunkerRef.current.flush()) ttsRef.current?.speak(chunk);
               ttsRef.current?.endTurn();
             },
@@ -282,6 +322,7 @@ export function useLiveSession({ apiBaseUrl }: UseLiveSessionArgs) {
           return;
         }
         liveRef.current = liveHandle;
+        if (recapRef.current) liveHandle.sendText(recapRef.current);
 
         recorder.port.onmessage = (event: MessageEvent<{ pcm16: Int16Array }>) => {
           const pcm = event.data.pcm16;
@@ -404,6 +445,7 @@ export function useLiveSession({ apiBaseUrl }: UseLiveSessionArgs) {
           flags.agentTurnOpen = false;
           flags.awaitingReply = true;
           useLiveStore.getState().setUserCaption(trimmed);
+          recorderRef.current?.pushUser(trimmed);
           liveRef.current?.sendText(trimmed);
         },
         onError: () => {},
@@ -426,6 +468,11 @@ export function useLiveSession({ apiBaseUrl }: UseLiveSessionArgs) {
 
   async function attachCamera(camera: CameraController, source: VideoSource): Promise<void> {
     const stream = await camera.use(source);
+    if (cameraRef.current !== camera) {
+      // Superseded while the permission prompt was open: release it.
+      camera.stop();
+      return;
+    }
     const video = videoRef.current;
     if (video) {
       video.srcObject = stream;
@@ -476,22 +523,43 @@ export function useLiveSession({ apiBaseUrl }: UseLiveSessionArgs) {
   // ---- public controls -------------------------------------------------
 
   const start = useCallback(
-    async (category: Category, playbookId: string | null) => {
+    async (
+      category: Category,
+      playbookId: string | null,
+      options: { resolveChatId: (() => string) | null; recap: string | null } = { resolveChatId: null, recap: null },
+    ) => {
       const flags = flagsRef.current;
+      const token = ++startTokenRef.current;
       flags.ended = false;
       flags.fallbackUsed = false;
+      recorderRef.current?.close();
+      recorderRef.current = options.resolveChatId ? new ChatRecorder(options.resolveChatId) : null;
+      recapRef.current = options.recap;
       if (IS_MOCK_LIVE) {
         const live = useLiveStore.getState();
         live.reset();
         flags.connected = true;
+        // Demo mode: use the real camera if the browser allows it (so the UI
+        // can be judged over a live picture), otherwise show a drawn scene.
         const camera = new CameraController();
         cameraRef.current = camera;
         try {
           await attachCamera(camera, "environment");
+          useLiveStore.getState().setDemoRealCamera(true);
         } catch {
-          // Mock mode without a camera still renders the UI.
+          useLiveStore.getState().setCameraState({ canFlip: true, canShareScreen: true, torchSupported: true });
         }
-        stopMockRef.current = runMockLive(levelRef);
+        if (token !== startTokenRef.current) return;
+        stopMockRef.current = runMockLive(levelRef, {
+          showBoxes: !useLiveStore.getState().demoRealCamera,
+          driftRef,
+        });
+        // A short scripted exchange so saved chats are not empty in the demo.
+        const recorder = recorderRef.current;
+        recorder?.pushUser("The ceiling fan hums but does not turn.");
+        recorder?.appendAgent("That sounds like the capacitor. First, switch the fan off at the wall.");
+        recorder?.finishAgent();
+        recorder?.event("Step 2: Switch off the fan at the wall");
         return;
       }
       await begin(category, playbookId, false);
@@ -556,6 +624,7 @@ export function useLiveSession({ apiBaseUrl }: UseLiveSessionArgs) {
   return {
     videoRef,
     levelRef,
+    driftRef,
     start,
     end,
     toggleMute,
