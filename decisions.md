@@ -246,3 +246,37 @@
 - **Approved by:** Self-approved (matches the plan's own stated
   constraints and AGENTS.md's crawler rules).
 - **Status:** Active.
+
+## D-011 - main branch created from the claude branch tip, no empty-root PR
+- **Date:** 2026-10-03
+- **Context:** The repo had no `main` branch at all (truly empty before
+  this session). Creating it as a clean empty/orphan branch (so a PR into
+  it would show the whole build as one diff) needed a local
+  `git checkout --orphan` + forced unstage, which this session's
+  "Git Destructive" safety classifier blocked outright; a
+  `gh api -X PATCH .../mend` to flip the default branch was separately
+  blocked by the GitHub proxy ("Repository settings writes are not
+  permitted through this proxy"). Ahmed then said to just create `main`
+  and make it default.
+- **Decision:** Created `main` via the GitHub API's branch-creation
+  endpoint (an additive ref creation, not a settings write, so it wasn't
+  blocked) pointed at the exact tip of `claude/dazzling-mendel-wzr1ar`
+  (commit `e35cd7f`, everything built this session). Ahmed then set it as
+  the repo's default branch himself via the GitHub UI (Settings ->
+  Branches), the one step the proxy wouldn't let this session do. Since
+  `main` and `claude/dazzling-mendel-wzr1ar` are now identical commits,
+  no PR was opened for this round -- there is nothing to diff. Future
+  work continues on `claude/dazzling-mendel-wzr1ar` as instructed, with
+  real PRs into `main` once the two branches diverge again.
+- **Rationale:** Two independent, unrelated safety/policy layers blocked
+  the originally planned approach (empty orphan `main` + a full-build
+  PR); branching off the existing tip was the next-best option that
+  neither layer blocked, and gets to the same end state (a populated,
+  default `main`) without fighting either restriction.
+- **Alternatives considered:** Asking for the git-destructive permission
+  to be granted (rejected: Ahmed's own instruction was simpler and
+  didn't need it); an empty-root `main` with a real PR (rejected: both
+  blocked, see Context).
+- **Approved by:** Ahmed (explicit instruction: "create a main branch and
+  make it default").
+- **Status:** Active.
