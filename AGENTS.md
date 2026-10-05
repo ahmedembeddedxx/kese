@@ -40,9 +40,22 @@ team's own session protocol. These are not suggestions.
     (when available in the session) to maintain the graph-based memory map
     of this codebase alongside `CLAUDE.md`, so navigation between files
     stays fast across sessions and model switches.
+12. **UI work uses the apple-design skill.** Before touching anything
+    under `apps/web/src` that the user sees, run `scripts/install-skills.sh`
+    (once per checkout; it installs `.claude/skills/apple-design` from
+    https://github.com/dickwu/apple-design-skill at a pinned commit, and the
+    directory is gitignored because the HIG text is Apple's) and invoke
+    `/apple-design`. Follow its accessibility rules (44pt targets, 4.5:1
+    contrast, reduced motion/transparency/contrast fallbacks) and keep all
+    copy in `apps/web/src/i18n/strings.ts` in BOTH languages.
+13. **Visual QA before a UI PR.** Build with `VITE_MOCK_LIVE=1` and take
+    Playwright screenshots of Home, Consent, the repair sheet, Live
+    (`?mock=listening|thinking|speaking|gate`) and Done at phone and
+    desktop sizes. The mock driver (`features/live/mockLive.ts`) exists so
+    this needs no API keys.
 
 ## Model identifiers
 
-Every Gemini/Replicate model ID, price, and quota referenced anywhere in
+Every Gemini/ElevenLabs/Replicate model ID, price, and quota referenced anywhere in
 the codebase must come from `services/api/app/config.py`. Never hardcode a
 model string or price inline - they change (see `decisions.md`).

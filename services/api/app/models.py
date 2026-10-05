@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -59,6 +59,42 @@ class SessionRequest(BaseModel):
     device_hint: str | None = Field(default=None, max_length=200)
     playbook_id: str | None = Field(default=None, pattern="^[a-z0-9]+(-[a-z0-9]+)*$")
     language: str = Field(default="en", pattern="^(en|ur)$")
+    # Which voice stack the client would like. The server resolves the
+    # ACTIVE provider and may fall back to "gemini" (see SessionResponse.voice).
+    voice_provider: Literal["gemini", "elevenlabs"] = "elevenlabs"
+    # Disclaimer and consent on first use is a safety feature from the plan.
+    consent: bool = False
+
+
+class ElevenLabsSTTSession(BaseModel):
+    url: str
+    token: str
+    model_id: str
+    language_code: str
+    audio_format: str
+    commit_strategy: str
+    vad_silence_threshold_secs: float
+
+
+class ElevenLabsTTSSession(BaseModel):
+    url: str
+    token: str
+    model_id: str
+    voice_id: str
+    output_format: str
+    language_code: str
+
+
+class ElevenLabsSession(BaseModel):
+    stt: ElevenLabsSTTSession
+    tts: ElevenLabsTTSSession
+    token_ttl_seconds: int = 900
+
+
+class SessionVoice(BaseModel):
+    provider: Literal["gemini", "elevenlabs"]
+    language: Literal["ur", "en"]
+    elevenlabs: ElevenLabsSession | None = None
 
 
 class SessionResponse(BaseModel):
@@ -72,6 +108,28 @@ class SessionResponse(BaseModel):
     # place they're defined (app/live_tools.py), never duplicated as a
     # second hardcoded copy in TypeScript.
     tool_declarations: list[dict]
+    # The resolved voice stack. `voice.provider` is authoritative: it may
+    # differ from the requested one after a server-side fallback.
+    voice: SessionVoice
+    # camelCase Live connect config, locked identically into the token.
+    live_config: dict
+
+
+# ---------------------------------------------------------------------------
+# POST /voice/token
+#
+# Single-use ElevenLabs tokens are consumed on connect, so the browser needs
+# a fresh one on every reconnect.
+# ---------------------------------------------------------------------------
+
+
+class VoiceTokenRequest(BaseModel):
+    kind: Literal["stt", "tts"]
+
+
+class VoiceTokenResponse(BaseModel):
+    token: str
+    ttl_seconds: int
 
 
 # ---------------------------------------------------------------------------

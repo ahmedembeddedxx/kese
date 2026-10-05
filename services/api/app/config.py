@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from pydantic import Field
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -25,6 +25,18 @@ class ModelConfig:
     DETECTION = "gemini-3.1-flash-lite"
     EMBEDDING = "gemini-embedding-001"
     SEGMENTATION_FALLBACK = "meta/sam-2"  # Replicate model slug, confirm before first real use
+
+    # ElevenLabs voice stack (Urdu ears and mouth). Not exercised against a
+    # live key yet. `eleven_flash_v2_5` and `eleven_multilingual_v2` do NOT
+    # support Urdu, so they must never be used for Urdu sessions.
+    ELEVENLABS_STT = "scribe_v2_realtime"
+    ELEVENLABS_TTS = "eleven_v4_turbo"
+    ELEVENLABS_API_BASE = "https://api.elevenlabs.io"
+    ELEVENLABS_STT_WS_URL = "wss://api.elevenlabs.io/v1/speech-to-text/realtime"
+    ELEVENLABS_TTS_WS_URL = "wss://api.elevenlabs.io/v1/text-to-dialogue/stream-input"
+    ELEVENLABS_STT_LANGUAGE_UR = "urd"
+    ELEVENLABS_STT_LANGUAGE_EN = "eng"
+    ELEVENLABS_OUTPUT_FORMAT = "pcm_24000"
 
 
 class PricingConfig:
@@ -63,6 +75,16 @@ class Settings(BaseSettings):
     gemini_api_key: str | None = Field(default=None)
     replicate_api_token: str | None = Field(default=None)
 
+    # ElevenLabs (Scribe v2 Realtime STT + eleven_v4_turbo TTS). When either
+    # is unset, /session silently falls back to Gemini native audio.
+    elevenlabs_api_key: str | None = Field(default=None)
+    elevenlabs_voice_id: str | None = Field(default=None)
+
+    # Deterministic in-process stand-ins for Gemini, Replicate and
+    # ElevenLabs, so the whole stack runs without any API keys. Refused in
+    # production (see `dev_fakes_allowed` and `check_dev_fakes`).
+    dev_fakes: bool = Field(default=False)
+
     firebase_project_id: str | None = Field(default=None)
     firestore_emulator_host: str | None = Field(default=None)
 
@@ -73,6 +95,7 @@ class Settings(BaseSettings):
     detect_rate_limit: str = Field(default="20/minute")
     session_rate_limit: str = Field(default="10/minute")
     segment_rate_limit: str = Field(default="20/minute")
+    voice_token_rate_limit: str = Field(default="30/minute")
 
     ephemeral_token_ttl_seconds: int = Field(default=600)
 
@@ -89,6 +112,21 @@ class Settings(BaseSettings):
         Firebase project. See decisions.md D-006.
         """
         return self.environment in {"development", "test"}
+
+    @property
+    def dev_fakes_allowed(self) -> bool:
+        """Whether `dev_fakes` may be enabled. Never true in production,
+        same philosophy as `dev_auth_allowed` (decisions.md D-006)."""
+        return not self.is_production
+
+    @model_validator(mode="after")
+    def check_dev_fakes(self) -> Settings:
+        """Fail loudly at startup if fakes are switched on in production."""
+        if self.dev_fakes and not self.dev_fakes_allowed:
+            raise ValueError(
+                "MEND_DEV_FAKES must not be enabled when MEND_ENVIRONMENT=production"
+            )
+        return self
 
 
 @lru_cache

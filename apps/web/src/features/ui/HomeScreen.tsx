@@ -1,113 +1,114 @@
-// Home screen: one big "Start fixing" button plus three category tiles,
-// "My stuff" (saved devices so a repeat repair starts with context), and
-// the Urdu/English toggle, per the plan's UI rules.
+// Home. One obvious thing to do (start talking), three quick doors for
+// people who already know what is wrong, and one door to the full list of
+// guided repairs. Every route ends in the same live screen.
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { LanguageToggle } from "../../components/LanguageToggle";
+import { BoltIcon, CarIcon, MicIcon, SnowflakeIcon, SparkIcon } from "../../components/icons";
+import { useI18n } from "../../i18n/useI18n";
+import type { StringKey } from "../../i18n/strings";
 import type { ApiClient } from "../../lib/apiClient";
-import type { Category, Device } from "../../lib/types";
+import type { Category } from "../../lib/types";
 import { useSessionStore } from "../../store/sessionStore";
+import { PlaybookSheet } from "./PlaybookSheet";
+
+const DOORS: { category: Category; key: StringKey; Icon: typeof BoltIcon }[] = [
+  { category: "electrical", key: "categoryElectrical", Icon: BoltIcon },
+  { category: "ac", key: "categoryAc", Icon: SnowflakeIcon },
+  { category: "car", key: "categoryCar", Icon: CarIcon },
+];
+
+/** Viewfinder brackets: the product in one picture (point, and it finds the part). */
+function Viewfinder() {
+  return (
+    <svg viewBox="0 0 160 160" className="size-36 text-accent" fill="none" aria-hidden="true">
+      <g stroke="currentColor" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 54V34a16 16 0 0 1 16-16h20" />
+        <path d="M142 54V34a16 16 0 0 0-16-16h-20" />
+        <path d="M18 106v20a16 16 0 0 0 16 16h20" />
+        <path d="M142 106v20a16 16 0 0 1-16 16h-20" />
+      </g>
+      <circle cx="80" cy="80" r="26" className="fill-accent-soft" />
+      <path d="M80 62v36M62 80h36" stroke="currentColor" strokeWidth="5" strokeLinecap="round" opacity=".9" />
+    </svg>
+  );
+}
 
 interface HomeScreenProps {
   apiClient: ApiClient;
 }
 
-const CATEGORIES: { id: Category; label: string; labelUr: string }[] = [
-  { id: "electrical", label: "Electrical", labelUr: "بجلی" },
-  { id: "ac", label: "AC", labelUr: "اے سی" },
-  { id: "car", label: "Car", labelUr: "گاڑی" },
-];
-
-type DevicesState =
-  | { status: "loading" }
-  | { status: "ready"; devices: Device[] }
-  | { status: "error"; message: string };
-
 export function HomeScreen({ apiClient }: HomeScreenProps) {
-  const { language, setLanguage, startRepair } = useSessionStore();
-  const [devicesState, setDevicesState] = useState<DevicesState>({ status: "loading" });
-
-  useEffect(() => {
-    let cancelled = false;
-    apiClient
-      .listDevices()
-      .then((devices) => {
-        if (!cancelled) setDevicesState({ status: "ready", devices });
-      })
-      .catch((error: unknown) => {
-        // Honesty rule (see services/api kb_store.py): a fetch failure is
-        // shown as an error, never silently rendered as "no saved devices".
-        if (!cancelled) setDevicesState({ status: "error", message: String(error) });
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [apiClient]);
+  const { t, dir, language } = useI18n();
+  const requestStart = useSessionStore((s) => s.requestStart);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   return (
-    <div className="min-h-dvh flex flex-col px-5 py-8 gap-8 bg-neutral-950 text-white">
-      <div className="flex justify-end">
+    <main
+      dir={dir}
+      lang={language}
+      className="mx-auto flex min-h-dvh max-w-md flex-col px-6 pt-[calc(1rem+var(--safe-top))] pb-[calc(1.5rem+var(--safe-bottom))]"
+    >
+      <header className="flex items-center justify-between">
+        <span className="text-2xl font-extrabold tracking-tight">{t("appName")}</span>
+        <LanguageToggle />
+      </header>
+
+      <section className="flex flex-1 flex-col items-center justify-center gap-6 py-8 text-center">
+        <Viewfinder />
+        <h1 className="urdu-body max-w-xs text-3xl font-bold leading-snug">{t("tagline")}</h1>
+      </section>
+
+      <section className="flex flex-col gap-4">
         <button
           type="button"
-          onClick={() => setLanguage(language === "en" ? "ur" : "en")}
-          className="min-h-12 px-4 rounded-full bg-white/10 text-sm"
-          data-testid="language-toggle"
+          onClick={() => requestStart("general")}
+          data-testid="start-talking"
+          className="flex min-h-16 items-center justify-center gap-3 rounded-3xl bg-accent px-6 text-xl font-bold text-accent-fg shadow-lg shadow-accent/25 active:scale-[0.98]"
         >
-          {language === "en" ? "اردو" : "English"}
-        </button>
-      </div>
-
-      <div className="flex-1 flex flex-col items-center justify-center gap-6">
-        <button
-          type="button"
-          onClick={() => startRepair("general")}
-          className="min-h-14 w-full max-w-sm rounded-2xl bg-cyan-400 text-black text-lg font-semibold"
-          data-testid="start-fixing"
-        >
-          {language === "ur" ? "ٹھیک کرنا شروع کریں" : "Start fixing"}
+          <MicIcon size={26} />
+          <span className="flex flex-col items-start leading-tight">
+            <span>{t("startTalking")}</span>
+            <span className="text-xs font-medium opacity-75">{t("startTalkingHint")}</span>
+          </span>
         </button>
 
-        <div className="grid grid-cols-3 gap-3 w-full max-w-sm">
-          {CATEGORIES.map((c) => (
+        <div className="grid grid-cols-3 gap-3">
+          {DOORS.map(({ category, key, Icon }) => (
             <button
-              key={c.id}
+              key={category}
               type="button"
-              onClick={() => startRepair(c.id)}
-              className="min-h-20 rounded-xl bg-white/10 text-sm"
-              data-testid={`category-${c.id}`}
+              onClick={() => requestStart(category)}
+              data-testid={`door-${category}`}
+              className="flex min-h-24 flex-col items-center justify-center gap-2 rounded-3xl bg-raised text-base font-semibold ring-1 ring-hairline active:scale-[0.97]"
             >
-              {language === "ur" ? c.labelUr : c.label}
+              <Icon size={28} className="text-accent" />
+              {t(key)}
             </button>
           ))}
         </div>
-      </div>
 
-      <section>
-        <h2 className="text-sm uppercase tracking-wide text-white/60 mb-2">
-          {language === "ur" ? "میرا سامان" : "My stuff"}
-        </h2>
-        {devicesState.status === "loading" && (
-          <p className="text-white/50 text-sm">Loading...</p>
-        )}
-        {devicesState.status === "error" && (
-          <p className="text-red-400 text-sm" data-testid="devices-error">
-            Couldn't load your saved devices. Check your connection and try again.
-          </p>
-        )}
-        {devicesState.status === "ready" && devicesState.devices.length === 0 && (
-          <p className="text-white/50 text-sm">
-            {language === "ur" ? "ابھی کچھ محفوظ نہیں" : "Nothing saved yet"}
-          </p>
-        )}
-        {devicesState.status === "ready" && devicesState.devices.length > 0 && (
-          <ul className="flex flex-col gap-2">
-            {devicesState.devices.map((d) => (
-              <li key={d.id} className="rounded-lg bg-white/5 px-3 py-2 text-sm">
-                {d.nickname ?? d.kind}
-              </li>
-            ))}
-          </ul>
-        )}
+        <button
+          type="button"
+          onClick={() => setSheetOpen(true)}
+          data-testid="choose-repair"
+          className="flex min-h-14 items-center justify-center gap-2 rounded-2xl text-base font-semibold text-accent"
+        >
+          <SparkIcon size={20} />
+          {t("chooseRepair")}
+        </button>
       </section>
-    </div>
+
+      {sheetOpen && (
+        <PlaybookSheet
+          apiClient={apiClient}
+          onClose={() => setSheetOpen(false)}
+          onPick={(p) => {
+            setSheetOpen(false);
+            requestStart(p.category, p.id);
+          }}
+        />
+      )}
+    </main>
   );
 }

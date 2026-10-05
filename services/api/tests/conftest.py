@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from app.config import Settings, get_settings
 from app.dependencies import (
     get_device_store,
+    get_elevenlabs_client,
     get_event_store,
     get_gemini_client,
     get_kb_store,
@@ -32,8 +33,19 @@ class FakeGeminiClient:
             )
         ]
         self.fail = False
+        self.mint_calls: list[dict] = []
 
-    def mint_ephemeral_token(self, *, ttl_seconds, system_prompt, tool_names) -> EphemeralToken:
+    def mint_ephemeral_token(
+        self, *, ttl_seconds, live_config, tool_declarations, system_prompt
+    ) -> EphemeralToken:
+        self.mint_calls.append(
+            {
+                "ttl_seconds": ttl_seconds,
+                "live_config": live_config,
+                "tool_declarations": tool_declarations,
+                "system_prompt": system_prompt,
+            }
+        )
         if self.fail:
             from app.services.gemini_client import GeminiClientError
 
@@ -58,6 +70,20 @@ class FakeGeminiClient:
 
             raise GeminiClientError("boom")
         return [0.1, 0.2, 0.3]
+
+
+class FakeElevenLabsClient:
+    def __init__(self) -> None:
+        self.fail = False
+        self.calls: list[str] = []
+
+    def mint_single_use_token(self, token_type):
+        self.calls.append(token_type)
+        if self.fail:
+            from app.services.elevenlabs_client import ElevenLabsClientError
+
+            raise ElevenLabsClientError("boom")
+        return f"fake-{token_type}-token"
 
 
 class FakeReplicateClient:
@@ -114,6 +140,16 @@ class FakeEventStore:
         self.events.append((uid, payload))
 
 
+@pytest.fixture(autouse=True)
+def _reset_rate_limiter():
+    """The slowapi limiter is process-global and in-memory; without a reset,
+    tests sharing a dev token would exhaust each other's quota."""
+    from app.rate_limit import limiter
+
+    limiter.reset()
+    yield
+
+
 @pytest.fixture
 def test_settings() -> Settings:
     return Settings(environment="test")
@@ -124,6 +160,7 @@ def fakes():
     return {
         "gemini": FakeGeminiClient(),
         "replicate": FakeReplicateClient(),
+        "elevenlabs": FakeElevenLabsClient(),
         "kb": FakeKBStore(),
         "devices": FakeDeviceStore(),
         "events": FakeEventStore(),
@@ -136,11 +173,26 @@ def client(test_settings, fakes):
     app.dependency_overrides[get_settings] = lambda: test_settings
     app.dependency_overrides[get_gemini_client] = lambda: fakes["gemini"]
     app.dependency_overrides[get_replicate_client] = lambda: fakes["replicate"]
+    app.dependency_overrides[get_elevenlabs_client] = lambda: fakes["elevenlabs"]
     app.dependency_overrides[get_kb_store] = lambda: fakes["kb"]
     app.dependency_overrides[get_device_store] = lambda: fakes["devices"]
     app.dependency_overrides[get_event_store] = lambda: fakes["events"]
     with TestClient(app) as test_client:
         yield test_client
+
+
+@pytest.fixture
+def eleven_settings(test_settings) -> Settings:
+    """test_settings with ElevenLabs configured (the `client` fixture shares this object)."""
+    test_settings.elevenlabs_api_key = "test-key-not-real"
+    test_settings.elevenlabs_voice_id = "voice-123"
+    return test_settings
+
+
+@pytest.fixture
+def session_body() -> dict:
+    """A valid /session body, including the consent the API now requires."""
+    return {"category": "general", "language": "en", "consent": True}
 
 
 @pytest.fixture

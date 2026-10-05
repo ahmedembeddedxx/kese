@@ -280,3 +280,89 @@
 - **Approved by:** Ahmed (explicit instruction: "create a main branch and
   make it default").
 - **Status:** Active.
+
+## D-012 - apple-design skill is installed by reference, not vendored
+- **Date:** 2026-10-05
+- **Context:** Ahmed asked for https://github.com/dickwu/apple-design-skill
+  to be added to the flow and used for the UI rebuild. The skill bundles
+  Apple's Human Interface Guidelines text.
+- **Decision:** `scripts/install-skills.sh` clones the skill at a pinned
+  commit (`904b0ee`) into `.claude/skills/apple-design`, which is
+  gitignored. `AGENTS.md` rule 12 requires `/apple-design` for UI work.
+- **Rationale:** The HIG text is Apple's content; committing a copy into
+  this repo is a redistribution question nobody has signed off on. A
+  pinned install script gives every checkout and every model the same
+  skill without that risk, and the pin stops upstream changes silently
+  altering design guidance.
+- **Alternatives considered:** Vendoring the skill folder (rejected:
+  redistribution); relying on a global install (rejected: not
+  reproducible across sessions and models).
+- **Approved by:** Ahmed (asked for the skill to be added); the by-reference
+  mechanism is self-approved (low risk, reversible).
+- **Status:** Active.
+
+## D-013 - Voice stack: Gemini sees, ElevenLabs hears and speaks Urdu
+- **Date:** 2026-10-05
+- **Context:** Ahmed wants a Gemini-Live-style voice agent that speaks
+  Urdu well. He first suggested Wispr Flow, then corrected: it has no
+  public API, use ElevenLabs. Verified against ElevenLabs' raw docs:
+  Scribe v2 Realtime supports Urdu (`urd`); Urdu TTS exists only on the
+  `eleven_v3`/`eleven_v4` families (Flash and Multilingual v2 lack it), and
+  `eleven_v4_turbo` streams over the text-to-dialogue WebSocket.
+- **Decision:** Gemini Live runs in TEXT mode (still sees one JPEG per
+  second and calls tools). ElevenLabs Scribe v2 Realtime is the ears and
+  `eleven_v4_turbo` is the mouth. The backend mints single-use ElevenLabs
+  tokens (`/session` returns the first pair, `/voice/token` mints more
+  because tokens are consumed on connect) and resolves the ACTIVE provider
+  server-side. Any missing config, mint failure or mid-session voice
+  failure falls back to Gemini native audio (a restart on the Gemini
+  stack, once). `/session` now refuses without `consent: true`. The
+  Gemini ephemeral token is multi-use (`uses=6`) with session resumption
+  and context-window compression locked in, so the ~2 minute audio+video
+  limit and `goAway` reconnects do not end a repair.
+- **Rationale:** Gemini's own Urdu voice is the weaker part of the pipeline;
+  ElevenLabs is the better Urdu voice while Gemini remains the only part
+  that understands the camera. Fallback honours "the customer must never
+  be left without a voice".
+- **Alternatives considered:** Wispr Flow (rejected: no API, STT only);
+  ElevenLabs Conversational Agents (rejected: would replace Gemini as the
+  brain and lose the video understanding); keeping Gemini audio only
+  (kept as the fallback).
+- **Approved by:** Ahmed (chose ElevenLabs); fallback design self-approved.
+- **Status:** Active. NOT yet exercised against live keys. Unverified:
+  whether the text-to-dialogue endpoint accepts a `tts_websocket` token and
+  returns `pcm_24000`; whether Gemini accepts TEXT responses together with
+  `outputAudioTranscription`; resumption on the same multi-use token.
+  Echo/barge-in tuning needs a real phone.
+
+## D-014 - UI direction: full-screen camera, glass controls, no canned buttons
+- **Date:** 2026-10-05
+- **Context:** "UI is fucked up, match Gemini." Camera must be full screen,
+  switchable, screen-shareable, with a good voice animation, Urdu voice, and
+  no "Repeat" / "I'm stuck" buttons because the agent sees and hears.
+- **Decision:** The Live screen is one full-bleed `object-cover` video with
+  a single glass control row (flip camera, share screen, voice pill, mic,
+  end), captions above it, a step chip (desktop: steps panel) and a torch
+  button when supported. Repeat and "I'm stuck" were removed. Urdu is the
+  default language (RTL, Nastaliq for reading text, Naskh for compact UI
+  labels), persisted in localStorage. One accent colour ("Mend amber").
+  The control row keeps a fixed left-to-right order in both languages
+  (media-control convention). Safety gates have equal-weight "Not yet" and
+  confirm buttons; the decision is sent back to the agent as a text turn,
+  and `safety_gate` now returns `waiting_for_user_tap`. Home has one main
+  action, three category doors and a full repair list sheet, so every route
+  stays reachable. The overlay maps detections through the
+  `object-fit: cover` crop and the front-camera mirror (previously boxes
+  drifted on any screen whose aspect differed from the camera's). Mic audio
+  now runs at 16 kHz (the worklet used the context's native rate, which
+  Gemini would have mis-heard). `VITE_MOCK_LIVE=1` drives every visual state
+  without keys for design review.
+- **Rationale:** Matches the reference the user showed, keeps the camera as
+  the hero, and follows the apple-design skill (restraint, 44pt targets,
+  contrast, reduced-motion/transparency fallbacks).
+- **Alternatives considered:** Gemini blue accent (rejected: looks like a
+  clone); LTR-mirroring of the control row (rejected: confuses muscle
+  memory).
+- **Approved by:** Ahmed (direction); details self-approved.
+- **Status:** Active. Visual QA done with Playwright against a fake camera
+  only; needs a real phone pass.

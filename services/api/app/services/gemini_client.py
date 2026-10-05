@@ -43,6 +43,74 @@ class GeminiClientError(RuntimeError):
     """Raised when the Gemini API call fails or is misconfigured."""
 
 
+# Session resumption reconnects (a new WebSocket per resume, needed because
+# audio+video Live sessions otherwise end after about 2 minutes) each consume
+# one use of the ephemeral token, so a single use would break the first
+# reconnect. 6 leaves headroom for a handful of resumes in one repair session
+# while keeping a leaked token of little value.
+EPHEMERAL_TOKEN_USES = 6
+
+# How long the browser has to open the first connection with a fresh token.
+NEW_SESSION_WINDOW_SECONDS = 120
+
+
+def _camel_to_snake(name: str) -> str:
+    out: list[str] = []
+    for ch in name:
+        if ch.isupper():
+            out.append("_")
+            out.append(ch.lower())
+        else:
+            out.append(ch)
+    return "".join(out)
+
+
+def _snake_keys(value):
+    """Recursively convert dict keys from camelCase to snake_case.
+
+    Only applied to `live_config`, whose keys are all fixed SDK field names.
+    Never applied to tool declarations, whose parameter names are ours.
+    """
+    if isinstance(value, dict):
+        return {_camel_to_snake(k): _snake_keys(v) for k, v in value.items()}
+    return value
+
+
+def build_auth_token_config(
+    *,
+    ttl_seconds: int,
+    live_config: dict,
+    tool_declarations: list[dict],
+    system_prompt: str,
+    now: datetime | None = None,
+):
+    """Build the typed `CreateAuthTokenConfig` that locks the Live config.
+
+    Pure and network-free, so tests can validate the shape against the
+    installed SDK models. Returns (config, expire_time).
+    """
+    from google.genai import types
+
+    now = now or datetime.now(UTC)
+    expire_time = now + timedelta(seconds=ttl_seconds)
+    new_session_expire = now + timedelta(seconds=NEW_SESSION_WINDOW_SECONDS)
+    constrained_config = {
+        **_snake_keys(live_config),
+        "system_instruction": system_prompt,
+        "tools": [{"function_declarations": tool_declarations}],
+    }
+    auth_config = types.CreateAuthTokenConfig(
+        uses=EPHEMERAL_TOKEN_USES,
+        expire_time=expire_time,
+        new_session_expire_time=new_session_expire,
+        live_connect_constraints=types.LiveConnectConstraints(
+            model=ModelConfig.LIVE,
+            config=types.LiveConnectConfig(**constrained_config),
+        ),
+    )
+    return auth_config, expire_time
+
+
 class GeminiClient:
     """Live wrapper. Construct once per process; the SDK client is lazy."""
 
@@ -60,23 +128,30 @@ class GeminiClient:
         return self._sdk_client
 
     def mint_ephemeral_token(
-        self, *, ttl_seconds: int, system_prompt: str, tool_names: list[str]
+        self,
+        *,
+        ttl_seconds: int,
+        live_config: dict,
+        tool_declarations: list[dict],
+        system_prompt: str,
     ) -> EphemeralToken:
         """Mint a short-lived token the browser uses to open the Live
         WebSocket directly, so the real API key never reaches the phone.
+
+        `live_config` is the same camelCase dict `/session` returns to the
+        browser, so the config the token locks server-side and the config
+        the browser sends can never drift apart. Not exercised against a
+        live key (and the `v1alpha` API version some SDK releases need for
+        ephemeral tokens is unverified).
         """
         client = self._client()
-        expire_time = datetime.now(UTC) + timedelta(seconds=ttl_seconds)
-        token_obj = client.auth_tokens.create(
-            config={
-                "uses": 1,
-                "expire_time": expire_time.isoformat(),
-                "live_connect_constraints": {
-                    "model": ModelConfig.LIVE,
-                    "config": {"system_instruction": system_prompt},
-                },
-            }
+        auth_config, expire_time = build_auth_token_config(
+            ttl_seconds=ttl_seconds,
+            live_config=live_config,
+            tool_declarations=tool_declarations,
+            system_prompt=system_prompt,
         )
+        token_obj = client.auth_tokens.create(config=auth_config)
         token_value = getattr(token_obj, "name", None) or getattr(token_obj, "token", None)
         if not token_value:
             raise GeminiClientError("Gemini did not return an ephemeral token")
