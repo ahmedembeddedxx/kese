@@ -3,86 +3,57 @@ _Overwritten every turn. If you're reading this at session start, this is the st
 
 ## Current Task
 Built out the full Mend monorepo from `Mend_Technical_Plan.pdf` overnight
-while Ahmed slept: backend, frontend, the full playbook breadth list, and
-a KB pipeline skeleton. Everything is Docker-tested and committed. Next:
-push, open a PR, and merge it (personal repo, see decisions.md D-007).
+while Ahmed slept: backend, frontend, the full playbook breadth list, a
+KB pipeline skeleton, Docker Compose, CI. Everything is now live on
+`main` (the default branch) -- this round is done. No deploys were made.
 
 ## Just Done
-- **Backend** (`services/api`): all 7 endpoint groups implemented
-  (session/detect/segment/kb/devices/events/playbooks/gates), auth
-  (Firebase + gated dev-mode bypass), per-user rate limiting, Firestore
-  stores, centralized model config. 49 pytest tests, green locally and in
-  Docker against the real Firestore emulator.
-- **Frontend** (`apps/web`): Home/Live/Done screens, Gemini Live session
-  orchestration (camera/mic/WebSocket -- not yet exercised against a real
-  key, see "Open Questions"), canvas overlay, the tool-call dispatcher
-  (fully unit tested), Zustand stores. 29 Vitest tests green; production
-  build verified (including the AudioWorklet chunk, see decisions.md
-  D-009); typecheck and oxlint clean.
-- **Playbooks**: all 26 from the plan's breadth table (8 electrical, 8
-  AC, 10 car), schema-validated. None human-safety-reviewed yet
-  (`review.safety_reviewed: false` on every one, honestly) -- that needs
-  real hardware per the plan's own gate.
-- **KB pipeline** (`pipelines/kb`): extract/structure/clean/embed are
-  real and tested (32 pytest tests); crawl is written but not installed/
-  exercised (no vetted source list yet, see decisions.md D-010).
-- **Infra**: `infra/docker-compose.yml` runs the whole stack plus three
-  isolated test profiles (api-test, web-test, kb-pipeline-test), all
-  verified green via `docker compose run --rm <service>` individually
-  and the firestore-emulator image rebuilt `--no-cache` as a final
-  from-scratch sanity check.
-- **CI**: `.github/workflows/ci.yml` mirrors the Docker Compose test
-  profile exactly, three parallel jobs.
-- **Security self-review**: no leaked secrets (grepped the whole repo),
-  no API keys in frontend code, every endpoint Pydantic-validated,
-  rate-limited where the plan calls for it, Firestore rules scope every
-  collection correctly, no raw frame/audio logging anywhere. Found and
-  fixed one real issue: four routers were echoing internal exception text
-  into 503 responses (mild info-disclosure) -- now logged server-side,
-  generic message to the client.
-- Em-dash sweep: cleared every em dash from committed docs (AGENTS.md
-  rule 9 applies repo-wide, caught a slip in my own early docs).
-- 15 commits made, split by type (feat/test/chore/docs/fix), each with
-  the `Ibtehaj778` co-author trailer, no Claude attribution anywhere
-  (decisions.md D-003), git identity on real GitHub account
-  `ahmedembeddedxx`.
+- Everything from the previous handover (backend 49 tests, frontend 29
+  tests, KB pipeline 32 tests, all Docker-verified from a `--no-cache`
+  rebuild, 26 playbooks, security self-review with one real fix applied)
+  was pushed to `claude/dazzling-mendel-wzr1ar` (16 commits).
+- The repo had no `main` branch at all before this session. Created one
+  via the GitHub API at the exact tip of `claude/dazzling-mendel-wzr1ar`
+  (D-011), and Ahmed set it as the repo's default branch himself (one
+  step this session's permissions wouldn't allow -- see D-011 for the two
+  separate blocks hit along the way). `main` and
+  `claude/dazzling-mendel-wzr1ar` are currently identical commits
+  (`e35cd7f`), so no PR was opened this round -- there was nothing to
+  diff. **The entire build described above is live on `main` right now.**
 
 ## Next Step
-1. Push `claude/dazzling-mendel-wzr1ar` (not yet pushed since the last
-   docs commit -- everything above is committed locally).
-2. Open a PR with the files-changed table + why paragraph already
-   drafted (see this session's work).
-3. Merge it -- this repo is personal, so per decisions.md D-007 that
-   doesn't need to wait for an explicit per-PR go-ahead. (Never do this
-   on an organization repo without explicit sign-off.)
-4. Keep iterating on remaining scope if there's time: real browser
-   testing of the Live session, a real crawled KB source, human safety
-   review of playbooks, optical-flow tracking (`apps/web/src/features/
-   tracking/` is still an empty stub).
+Nothing is blocking. Pick up any of:
+1. Real browser testing of the Live session against a real Gemini key
+   once one is configured (`apps/web/src/features/live/` is written but
+   not yet exercised against a live session).
+2. A real, licence-checked KB source (`pipelines/kb/sources/` only has
+   templates right now -- see `sources/README.md`).
+3. Human/real-hardware safety review of the 26 playbooks before trusting
+   any of them on an actual repair (`review.safety_reviewed: false` on
+   all of them, honestly).
+4. Optical-flow tracking (`apps/web/src/features/tracking/` is still an
+   empty stub per the plan's "on-device tracking" section).
+5. Whatever Ahmed asks for next.
 
-## Open Questions / Blockers (for Ahmed, when awake)
+New work should branch off `main` (or continue on
+`claude/dazzling-mendel-wzr1ar`, which equals `main` right now), get
+Docker-tested, and go through a real PR + merge once `main` and the
+working branch actually diverge -- per decisions.md D-007, this repo
+doesn't need per-PR sign-off, but organization repos always do.
+
+## Open Questions / Blockers (for Ahmed)
 - **Gemini API key and Replicate API token**: still not configured.
   Everything that needs one fails closed with a clear 503 (verified: hit
   `/session` with no key, got a 503, not a crash or a silent fake
-  response). The Live session's camera/mic/WebSocket wiring
-  (`apps/web/src/features/live/`) is written against the documented SDK
-  shapes but genuinely unverified against a live session -- needs a real
-  key and a real phone before the first demo.
+  response).
 - **Firebase/GCP project**: still none. Dev-mode auth bypass covers local
   testing; nothing deployed anywhere, as instructed.
-- **A real, licence-checked KB source list**: `pipelines/kb/sources/` only
-  has templates. Needs a human to check each real site's robots.txt/
-  terms before crawling it for real (see `sources/README.md`).
-- **Real hardware testing of playbooks**: all 26 are self-authored from
-  the plan and general repair knowledge, not field-tested. The plan's own
-  gate ("each playbook tested on real fan, AC and car") still needs doing
-  before any of them should be trusted on a real repair.
 - Hackathon date, which fan/AC/car the team can test on, and the judges'
   panel focus are still open per the plan's own "Open questions" section
   -- none of these block further build work.
 
 ## Files Touched This Turn
-148 files across `services/api/`, `apps/web/`, `playbooks/`,
-`pipelines/kb/`, `infra/`, `.github/workflows/`, and the four standing
-docs. See `git log --oneline` on this branch for the full, type-split
-commit history (15 commits, each self-describing).
+No file changes this turn beyond this handover and decisions.md D-011 --
+this turn was entirely about getting `main` created and set as default on
+GitHub (see D-011). The 148-file build itself landed in the previous
+turn's 16 commits, now on both branches.
