@@ -1,6 +1,6 @@
 """Thin wrapper around the `google-genai` SDK.
 
-Every call Mend makes to Gemini goes through this one class so routers
+Every call Kese AI makes to Gemini goes through this one class so routers
 never touch the SDK directly, which keeps them easy to test with a fake
 client (see `tests/conftest.py`) and keeps the actual wire-format details
 (ephemeral token shape, structured-output schema) in one place.

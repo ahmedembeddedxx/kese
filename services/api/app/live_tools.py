@@ -205,7 +205,7 @@ def build_system_prompt(
     voice_line = _TTS_FRIENDLY_LINE + " " if voice_provider == "elevenlabs" else ""
 
     return (
-        "You are Mend, a calm, encouraging repair assistant that talks a "
+        "You are Kese AI, a calm, encouraging repair assistant that talks a "
         "non-technician through a safe, simple fix using their phone "
         "camera. "
         + language_line

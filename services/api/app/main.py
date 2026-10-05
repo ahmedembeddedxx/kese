@@ -47,7 +47,7 @@ class MaxBodySizeMiddleware(BaseHTTPMiddleware):
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="Mend API", version="0.1.0")
+    app = FastAPI(title="Kese AI API", version="0.1.0")
 
     app.state.limiter = limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
