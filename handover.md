@@ -2,58 +2,46 @@
 _Overwritten every turn. If you're reading this at session start, this is the state you're resuming from._
 
 ## Current Task
-Built out the full Mend monorepo from `Mend_Technical_Plan.pdf` overnight
-while Ahmed slept: backend, frontend, the full playbook breadth list, a
-KB pipeline skeleton, Docker Compose, CI. Everything is now live on
-`main` (the default branch) -- this round is done. No deploys were made.
+UI rebuild "match Gemini" plus ElevenLabs Urdu voice, ready for the
+hackathon demo. Done and Docker-verified; PR into `main` is the last step.
 
 ## Just Done
-- Everything from the previous handover (backend 49 tests, frontend 29
-  tests, KB pipeline 32 tests, all Docker-verified from a `--no-cache`
-  rebuild, 26 playbooks, security self-review with one real fix applied)
-  was pushed to `claude/dazzling-mendel-wzr1ar` (16 commits).
-- The repo had no `main` branch at all before this session. Created one
-  via the GitHub API at the exact tip of `claude/dazzling-mendel-wzr1ar`
-  (D-011), and Ahmed set it as the repo's default branch himself (one
-  step this session's permissions wouldn't allow -- see D-011 for the two
-  separate blocks hit along the way). `main` and
-  `claude/dazzling-mendel-wzr1ar` are currently identical commits
-  (`e35cd7f`), so no PR was opened this round -- there was nothing to
-  diff. **The entire build described above is live on `main` right now.**
+- Backend: ElevenLabs single-use tokens (`/voice/token`, `voice` block in
+  `/session`), server-side fallback to Gemini audio, mandatory consent,
+  Live config (TEXT/AUDIO, resumption, compression, multi-use token),
+  `MEND_DEV_FAKES` keyless mode. 103 pytest pass in Docker.
+- Web: full-screen camera Live screen (flip, screen share, torch, voice
+  pill, mic, end, captions, steps panel, safety gate with "Not yet"),
+  Consent, Home with category doors, repair sheet, Done with feedback and
+  save-device. Urdu default, Nastaliq/Naskh fonts, light/dark, reduced
+  motion/transparency fallbacks. Repeat and "I'm stuck" removed. 187
+  Vitest pass in Docker, web image builds, KB 32 pass.
+- Fixed real bugs found on the way: overlay ignored `object-fit: cover`
+  and mirroring; mic worklet sent native-rate audio to a 16 kHz API; the
+  wire-tap request (`mark_wire`) had no UI.
+- apple-design skill wired in by reference (`scripts/install-skills.sh`,
+  D-012). Decisions D-012 to D-014 logged.
 
 ## Next Step
-Nothing is blocking. Pick up any of:
-1. Real browser testing of the Live session against a real Gemini key
-   once one is configured (`apps/web/src/features/live/` is written but
-   not yet exercised against a live session).
-2. A real, licence-checked KB source (`pipelines/kb/sources/` only has
-   templates right now -- see `sources/README.md`).
-3. Human/real-hardware safety review of the 26 playbooks before trusting
-   any of them on an actual repair (`review.safety_reviewed: false` on
-   all of them, honestly).
-4. Optical-flow tracking (`apps/web/src/features/tracking/` is still an
-   empty stub per the plan's "on-device tracking" section).
-5. Whatever Ahmed asks for next.
+Merge the PR (personal repo, D-007 allows it). Then, with real keys:
+1. Put `MEND_ELEVENLABS_API_KEY`, `MEND_ELEVENLABS_VOICE_ID` (an Urdu
+   voice), `MEND_GEMINI_API_KEY`, `MEND_REPLICATE_API_TOKEN` in
+   `services/api/.env`, run the stack, test on a real phone.
+2. Verify the unverified bits listed in D-013 (tts token type, pcm_24000,
+   TEXT mode with transcription, resumption) and tune barge-in/echo.
 
-New work should branch off `main` (or continue on
-`claude/dazzling-mendel-wzr1ar`, which equals `main` right now), get
-Docker-tested, and go through a real PR + merge once `main` and the
-working branch actually diverge -- per decisions.md D-007, this repo
-doesn't need per-PR sign-off, but organization repos always do.
-
-## Open Questions / Blockers (for Ahmed)
-- **Gemini API key and Replicate API token**: still not configured.
-  Everything that needs one fails closed with a clear 503 (verified: hit
-  `/session` with no key, got a 503, not a crash or a silent fake
-  response).
-- **Firebase/GCP project**: still none. Dev-mode auth bypass covers local
-  testing; nothing deployed anywhere, as instructed.
-- Hackathon date, which fan/AC/car the team can test on, and the judges'
-  panel focus are still open per the plan's own "Open questions" section
-  -- none of these block further build work.
+## Open Questions / Blockers
+- Needs from Ahmed: ElevenLabs API key + chosen Urdu voice id, Gemini key
+  (paid tier if privacy matters), Replicate token, Firebase project id.
+- Screenshots were taken with Chromium's fake camera only; a real-phone
+  visual pass is still owed. Playbooks are still not human-safety-reviewed.
 
 ## Files Touched This Turn
-No file changes this turn beyond this handover and decisions.md D-011 --
-this turn was entirely about getting `main` created and set as default on
-GitHub (see D-011). The 148-file build itself landed in the previous
-turn's 16 commits, now on both branches.
+- services/api: config, models, live_tools, dependencies, main, routers
+  (session, voice), services (elevenlabs_client, fake_clients,
+  gemini_client), tests
+- apps/web/src: index.css, i18n/, store/ (session, live), lib/ (types,
+  apiClient, cameraController, voice/, audio/pcmPlayer), features/live/,
+  features/overlay/, features/ui/, components/, App.tsx, index.html
+- scripts/install-skills.sh, .gitignore, AGENTS.md, CLAUDE.md,
+  decisions.md, handover.md
