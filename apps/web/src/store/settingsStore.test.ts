@@ -17,12 +17,12 @@ describe("settings", () => {
   });
 
   it("ignores garbage in storage", () => {
-    window.localStorage.setItem("mend.settings.v1", '{"voiceId":42,"voiceProvider":"x","ttsModel":""}');
+    window.localStorage.setItem("kese.settings.v1", '{"voiceId":42,"voiceProvider":"x","ttsModel":""}');
     expect(loadSettings()).toEqual({ voiceProvider: "elevenlabs", voiceId: null, ttsModel: null, liveModel: null });
   });
 
   it("survives unreadable storage", () => {
-    window.localStorage.setItem("mend.settings.v1", "{not json");
+    window.localStorage.setItem("kese.settings.v1", "{not json");
     expect(loadSettings().voiceProvider).toBe("elevenlabs");
   });
 });
